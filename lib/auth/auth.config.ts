@@ -29,7 +29,7 @@ export const authConfig = {
       // In NextAuth v5, auth.user should have the role from the session callback
       const userRole = auth?.user?.role;
 
-      console.log('🔒 Authorization check:', {
+      console.log(' Authorization check:', {
         path: nextUrl.pathname,
         isLoggedIn,
         userRole,
@@ -39,10 +39,10 @@ export const authConfig = {
 
       if (isOnAdminPanel) {
         if (isLoggedIn && userRole === 'admin') {
-          console.log('✅ Admin access granted');
+          console.log(' Admin access granted');
           return true;
         }
-        console.log('❌ Admin access denied');
+        console.log(' Admin access denied');
         return false; // Redirect to sign in page
       }
 

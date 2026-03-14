@@ -1,8 +1,8 @@
 # EasyBuyStore - E-Commerce Platform Documentation
 
-> **📑 See [INDEX.md](INDEX.md) for a complete documentation guide and quick navigation.**
+> ** See [INDEX.md](INDEX.md) for a complete documentation guide and quick navigation.**
 
-## 🚀 Quick Start
+##  Quick Start
 
 New to EasyBuyStore? Start here:
 
@@ -10,7 +10,7 @@ New to EasyBuyStore? Start here:
 2. **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Detailed installation guide (Windows/Mac/Linux)
 3. **[ADMIN_CREDENTIALS.md](ADMIN_CREDENTIALS.md)** - Admin panel access
 
-## 📚 Available Documentation
+##  Available Documentation
 
 ### Setup & Installation
 - [QUICK_START.md](QUICK_START.md) - Quick 5-minute setup guide

@@ -2,7 +2,7 @@
 
 Welcome to the EasyBuyStore documentation! This guide will help you navigate all available documentation.
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### For New Users
 1. **[QUICK_START.md](QUICK_START.md)** - Get up and running in 5 minutes
@@ -22,7 +22,7 @@ Welcome to the EasyBuyStore documentation! This guide will help you navigate all
    - First login instructions
    - Password change guide
 
-## 📖 Technical Documentation
+##  Technical Documentation
 
 ### Architecture & Development
 4. **[BACKEND_ARCHITECTURE.md](BACKEND_ARCHITECTURE.md)** - Backend technical details
@@ -47,22 +47,22 @@ Welcome to the EasyBuyStore documentation! This guide will help you navigate all
    - Tech stack
    - Getting started basics
 
-## 📂 Documentation Structure
+##  Documentation Structure
 
 ```
 docs/
-├── INDEX.md                    # This file - Documentation index
-├── QUICK_START.md             # 5-minute quick start guide
-├── SETUP_GUIDE.md             # Detailed setup instructions (Windows/Mac/Linux)
-├── ADMIN_CREDENTIALS.md       # Admin login credentials
-├── MIGRATION.md               # PHP to Next.js migration details
-├── BACKEND_ARCHITECTURE.md    # Technical architecture documentation
-├── MY_CONTRIBUTIONS.md        # Development contribution log
-├── 01-introduction.md         # Project introduction
-└── README.md                  # Docs folder readme
+ INDEX.md                    # This file - Documentation index
+ QUICK_START.md             # 5-minute quick start guide
+ SETUP_GUIDE.md             # Detailed setup instructions (Windows/Mac/Linux)
+ ADMIN_CREDENTIALS.md       # Admin login credentials
+ MIGRATION.md               # PHP to Next.js migration details
+ BACKEND_ARCHITECTURE.md    # Technical architecture documentation
+ MY_CONTRIBUTIONS.md        # Development contribution log
+ 01-introduction.md         # Project introduction
+ README.md                  # Docs folder readme
 ```
 
-## 🎯 Quick Navigation by Task
+##  Quick Navigation by Task
 
 ### "I want to install and run the project"
 → Start with [QUICK_START.md](QUICK_START.md)
@@ -82,14 +82,14 @@ docs/
 ### "I'm using Windows and need help"
 → [SETUP_GUIDE.md](SETUP_GUIDE.md) has Windows-specific instructions
 
-## 🆘 Need Help?
+##  Need Help?
 
 1. Check the relevant documentation file above
 2. Review the troubleshooting section in [SETUP_GUIDE.md](SETUP_GUIDE.md)
 3. Ensure your environment meets the prerequisites
 4. Check terminal error messages carefully
 
-## 📝 Contributing to Documentation
+##  Contributing to Documentation
 
 When adding new documentation:
 - Keep files organized in the `docs/` folder

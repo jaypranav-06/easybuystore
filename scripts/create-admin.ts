@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('👤 Creating admin account...');
+  console.log(' Creating admin account...');
 
   const adminEmail = 'admin@easybuystore.com';
   const adminPassword = 'Admin@123'; // You should change this after first login
@@ -16,10 +16,10 @@ async function main() {
   });
 
   if (existingAdmin) {
-    console.log('⚠️  Admin account already exists!');
-    console.log('📧 Email:', adminEmail);
-    console.log('👤 Name:', existingAdmin.name);
-    console.log('🔑 Role:', existingAdmin.role);
+    console.log('  Admin account already exists!');
+    console.log(' Email:', adminEmail);
+    console.log(' Name:', existingAdmin.name);
+    console.log(' Role:', existingAdmin.role);
     return;
   }
 
@@ -38,21 +38,21 @@ async function main() {
     },
   });
 
-  console.log('\n✅ Admin account created successfully!');
-  console.log('\n📋 Admin Credentials:');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('📧 Email:    ', adminEmail);
-  console.log('🔑 Password: ', adminPassword);
-  console.log('👤 Name:     ', adminName);
-  console.log('🎭 Role:     ', admin.role);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('\n⚠️  IMPORTANT: Please change the password after first login!');
-  console.log('\n🌐 Login at: http://localhost:3000/signin');
+  console.log('\n Admin account created successfully!');
+  console.log('\n Admin Credentials:');
+  console.log('');
+  console.log(' Email:    ', adminEmail);
+  console.log(' Password: ', adminPassword);
+  console.log(' Name:     ', adminName);
+  console.log(' Role:     ', admin.role);
+  console.log('');
+  console.log('\n  IMPORTANT: Please change the password after first login!');
+  console.log('\n Login at: http://localhost:3000/signin');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error creating admin account:', e);
+    console.error(' Error creating admin account:', e);
     process.exit(1);
   })
   .finally(async () => {

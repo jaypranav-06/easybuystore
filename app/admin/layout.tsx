@@ -9,11 +9,11 @@ export default async function AdminLayout({
 }) {
   const session = await auth();
 
-  console.log('🔐 Admin layout - session:', session);
+  console.log(' Admin layout - session:', session);
 
   // If no session or not admin, redirect to signin
   if (!session?.user || session.user.role !== 'admin') {
-    console.log('❌ Not admin - redirecting to signin');
+    console.log(' Not admin - redirecting to signin');
     redirect('/signin');
   }
 

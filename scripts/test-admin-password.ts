@@ -16,11 +16,11 @@ async function main() {
   });
 
   if (!admin) {
-    console.log('❌ Admin not found!');
+    console.log(' Admin not found!');
     return;
   }
 
-  console.log('\n✅ Admin found in database:');
+  console.log('\n Admin found in database:');
   console.log('- ID:', admin.admin_id);
   console.log('- Username:', admin.username);
   console.log('- Email:', admin.email);
@@ -29,13 +29,13 @@ async function main() {
 
   const isMatch = await bcrypt.compare(password, admin.password_hash);
 
-  console.log('\n🔑 Password verification:');
-  console.log('- Match:', isMatch ? '✅ YES' : '❌ NO');
+  console.log('\n Password verification:');
+  console.log('- Match:', isMatch ? ' YES' : ' NO');
 
   if (isMatch) {
-    console.log('\n✅ Password is correct! Login should work.');
+    console.log('\n Password is correct! Login should work.');
   } else {
-    console.log('\n❌ Password does not match! There is a problem with the password hash.');
+    console.log('\n Password does not match! There is a problem with the password hash.');
   }
 }
 

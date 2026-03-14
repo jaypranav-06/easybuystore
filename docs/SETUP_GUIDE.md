@@ -2,7 +2,7 @@
 
 Welcome to EasyBuyStore! This guide will help you set up and run the project on your local machine.
 
-## 📋 Prerequisites
+##  Prerequisites
 
 Before you begin, make sure you have the following installed on your system:
 
@@ -13,7 +13,7 @@ Before you begin, make sure you have the following installed on your system:
 
 > **Note for Windows users:** This guide includes commands for both Mac/Linux and Windows. For Windows, you can use Command Prompt, PowerShell, or Git Bash. PowerShell is recommended for better compatibility.
 
-## 🚀 Installation Steps
+##  Installation Steps
 
 ### Step 1: Extract the Project
 
@@ -140,7 +140,7 @@ npm run dev
 
 The application will start on **http://localhost:3000**
 
-## 🌐 Accessing the Application
+##  Accessing the Application
 
 ### Customer Interface
 - **Home Page:** http://localhost:3000
@@ -158,7 +158,7 @@ The application will start on **http://localhost:3000**
 - Email: Check the documentation
 - Password: Check the documentation
 
-## 📦 Available Scripts
+##  Available Scripts
 
 ```bash
 # Start development server
@@ -177,30 +177,30 @@ npm run lint
 npx prisma studio
 ```
 
-## 🗂️ Project Structure
+##  Project Structure
 
 ```
 easybuystore-nextjs/
-├── app/                      # Next.js app directory
-│   ├── (customer pages)     # Customer-facing pages
-│   ├── admin/               # Admin panel pages
-│   └── api/                 # API routes
-├── components/              # React components
-│   ├── customer/           # Customer components
-│   └── admin/              # Admin components
-├── lib/                     # Utility functions
-│   ├── auth/               # Authentication
-│   ├── db/                 # Database connection
-│   └── services/           # Business logic
-├── prisma/                  # Database schema
-│   └── schema.prisma       # Prisma schema file
-├── public/                  # Static assets
-├── .env                     # Environment variables (create this)
-├── package.json            # Dependencies
-└── README.md               # Project documentation
+ app/                      # Next.js app directory
+    (customer pages)     # Customer-facing pages
+    admin/               # Admin panel pages
+    api/                 # API routes
+ components/              # React components
+    customer/           # Customer components
+    admin/              # Admin components
+ lib/                     # Utility functions
+    auth/               # Authentication
+    db/                 # Database connection
+    services/           # Business logic
+ prisma/                  # Database schema
+    schema.prisma       # Prisma schema file
+ public/                  # Static assets
+ .env                     # Environment variables (create this)
+ package.json            # Dependencies
+ README.md               # Project documentation
 ```
 
-## 🔧 Troubleshooting
+##  Troubleshooting
 
 ### Database Connection Issues
 
@@ -316,7 +316,7 @@ npm run dev
 git config --global core.autocrlf true
 ```
 
-## 🔐 Security Notes
+##  Security Notes
 
 1. **Never commit your `.env` file** to version control
 2. **Change the NEXTAUTH_SECRET** to a secure random string
@@ -324,7 +324,7 @@ git config --global core.autocrlf true
 4. **Enable HTTPS** in production
 5. **Keep dependencies updated** regularly
 
-## 📝 Environment Variables Reference
+##  Environment Variables Reference
 
 | Variable | Description | Required |
 |----------|-------------|----------|
@@ -334,7 +334,7 @@ git config --global core.autocrlf true
 | NEXT_PUBLIC_PAYPAL_CLIENT_ID | PayPal Client ID | No |
 | PAYPAL_CLIENT_SECRET | PayPal Secret | No |
 
-## 🎯 Next Steps
+##  Next Steps
 
 After successfully running the project:
 
@@ -344,14 +344,14 @@ After successfully running the project:
 4. **Customize** the store settings
 5. **Test** the ordering process
 
-## 📚 Additional Resources
+##  Additional Resources
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Prisma Documentation](https://www.prisma.io/docs)
 - [NextAuth.js Documentation](https://next-auth.js.org)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 
-## 🆘 Getting Help
+##  Getting Help
 
 If you encounter issues:
 
@@ -361,12 +361,12 @@ If you encounter issues:
 4. Check the terminal for server-side errors
 5. Verify all environment variables are set correctly
 
-## 📄 License
+##  License
 
 This project is proprietary software. All rights reserved.
 
 ---
 
-**Happy Shopping! 🛍️**
+**Happy Shopping! **
 
 For questions or support, contact the development team.

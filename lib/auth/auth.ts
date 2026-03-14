@@ -18,31 +18,31 @@ const config = {
   providers: [
     Credentials({
       async authorize(credentials) {
-        console.log('🔐 Auth attempt:', credentials);
+        console.log(' Auth attempt:', credentials);
         const parsedCredentials = loginSchema.safeParse(credentials);
 
         if (!parsedCredentials.success) {
-          console.log('❌ Validation failed:', parsedCredentials.error);
+          console.log(' Validation failed:', parsedCredentials.error);
           return null;
         }
 
         const { email, password } = parsedCredentials.data;
-        console.log('✅ Validated email:', email);
+        console.log(' Validated email:', email);
 
         // Check if it's an admin login
         const admin = await prisma.adminUser.findUnique({
           where: { email },
         });
 
-        console.log('👤 Admin found:', admin ? 'YES' : 'NO');
+        console.log(' Admin found:', admin ? 'YES' : 'NO');
 
         if (admin) {
-          console.log('🔑 Checking admin password...');
+          console.log(' Checking admin password...');
           const passwordsMatch = await bcrypt.compare(password, admin.password_hash);
-          console.log('🔑 Admin password match:', passwordsMatch);
+          console.log(' Admin password match:', passwordsMatch);
 
           if (passwordsMatch) {
-            console.log('✅ Admin login successful!');
+            console.log(' Admin login successful!');
             return {
               id: admin.admin_id.toString(),
               email: admin.email,
@@ -57,15 +57,15 @@ const config = {
           where: { email },
         });
 
-        console.log('👤 User found:', user ? 'YES' : 'NO');
+        console.log(' User found:', user ? 'YES' : 'NO');
 
         if (user) {
-          console.log('🔑 Checking user password...');
+          console.log(' Checking user password...');
           const passwordsMatch = await bcrypt.compare(password, user.password_hash);
-          console.log('🔑 User password match:', passwordsMatch);
+          console.log(' User password match:', passwordsMatch);
 
           if (passwordsMatch) {
-            console.log('✅ User login successful!');
+            console.log(' User login successful!');
             return {
               id: user.user_id.toString(),
               email: user.email,
@@ -75,16 +75,16 @@ const config = {
           }
         }
 
-        console.log('❌ Login failed - no match found');
+        console.log(' Login failed - no match found');
         return null;
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user, trigger }: { token: JWT; user: User | null; trigger?: string }) {
-      console.log('🎫 JWT callback - user:', user);
-      console.log('🎫 JWT callback - token before:', token);
-      console.log('🎫 JWT callback - trigger:', trigger);
+      console.log(' JWT callback - user:', user);
+      console.log(' JWT callback - token before:', token);
+      console.log(' JWT callback - trigger:', trigger);
 
       // Call the base jwt callback from authConfig first
       if (authConfig.callbacks?.jwt) {
@@ -95,12 +95,12 @@ const config = {
       if (user) {
         token.id = user.id;
       }
-      console.log('🎫 JWT callback - token after:', token);
+      console.log(' JWT callback - token after:', token);
       return token;
     },
     async session({ session, token }: { session: Session; token: JWT }) {
-      console.log('📝 Session callback - token:', token);
-      console.log('📝 Session callback - session before:', session);
+      console.log(' Session callback - token:', token);
+      console.log(' Session callback - session before:', session);
 
       // Call the base session callback from authConfig first
       if (authConfig.callbacks?.session) {
@@ -111,7 +111,7 @@ const config = {
       if (session.user) {
         session.user.id = token.id as string;
       }
-      console.log('📝 Session callback - session after:', session);
+      console.log(' Session callback - session after:', session);
       return session;
     },
     // Include the authorized callback from authConfig

@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Adding more products to the catalog...');
+  console.log(' Adding more products to the catalog...');
 
   // Get existing categories
   const womenCategory = await prisma.category.findFirst({ where: { category_name: 'Women\'s Clothing' } });
@@ -418,25 +418,25 @@ async function main() {
     ...moreJewelry,
   ];
 
-  console.log('👗 Creating additional products...');
+  console.log(' Creating additional products...');
   for (const product of allNewProducts) {
     await prisma.product.create({
       data: product,
     });
-    console.log(`✅ Created: ${product.product_name}`);
+    console.log(` Created: ${product.product_name}`);
   }
 
-  console.log('\n🎉 Successfully added more products!');
-  console.log(`📊 Total new products added: ${allNewProducts.length}`);
+  console.log('\n Successfully added more products!');
+  console.log(` Total new products added: ${allNewProducts.length}`);
 
   // Get total count
   const totalProducts = await prisma.product.count();
-  console.log(`📊 Total products in database: ${totalProducts}`);
+  console.log(` Total products in database: ${totalProducts}`);
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error seeding database:', e);
+    console.error(' Error seeding database:', e);
     process.exit(1);
   })
   .finally(async () => {

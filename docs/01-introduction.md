@@ -48,14 +48,14 @@ While global e-commerce platforms exist, there's a need for localized solutions 
 
 ### Success Criteria
 
-- ✅ Fully functional product catalog with categories
-- ✅ Complete shopping cart and checkout flow
-- ✅ Secure user authentication and authorization
-- ✅ Admin dashboard with CRUD operations
-- ✅ Payment gateway integration (PayPal)
-- ✅ Logistics tracking integration
-- ✅ Responsive design (mobile, tablet, desktop)
-- ✅ Database with proper relationships and constraints
+-  Fully functional product catalog with categories
+-  Complete shopping cart and checkout flow
+-  Secure user authentication and authorization
+-  Admin dashboard with CRUD operations
+-  Payment gateway integration (PayPal)
+-  Logistics tracking integration
+-  Responsive design (mobile, tablet, desktop)
+-  Database with proper relationships and constraints
 
 ## 1.4 System Scope
 
@@ -120,11 +120,11 @@ The project follows an **Agile-inspired iterative approach**: [Clickup]
 
 ### Current Status
 
-✅ All core features implemented
-✅ Payment gateway integrated
-✅ Logistics tracking system implemented
-✅ Wishlist feature added
-🔄 Documentation in progress
+ All core features implemented
+ Payment gateway integrated
+ Logistics tracking system implemented
+ Wishlist feature added
+ Documentation in progress
 ⏳ Final testing and deployment pending
 
 ## 1.7 Expected Outcomes
@@ -150,22 +150,22 @@ The project follows an **Agile-inspired iterative approach**: [Clickup]
 
 ```
 easybuystore-nextjs/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   ├── admin/             # Admin pages
-│   ├── account/           # User account pages
-│   ├── auth/              # Authentication pages
-│   └── (public)/          # Public pages
-├── components/            # React components
-│   ├── customer/         # Customer-facing components
-│   └── admin/            # Admin components
-├── lib/                   # Utility libraries
-│   ├── db/               # Database connection
-│   ├── services/         # Business logic services
-│   └── stores/           # State management
-├── prisma/               # Database schema and migrations
-├── public/               # Static assets
-└── docs/                 # Project documentation
+ app/                    # Next.js App Router
+    api/               # API routes
+    admin/             # Admin pages
+    account/           # User account pages
+    auth/              # Authentication pages
+    (public)/          # Public pages
+ components/            # React components
+    customer/         # Customer-facing components
+    admin/            # Admin components
+ lib/                   # Utility libraries
+    db/               # Database connection
+    services/         # Business logic services
+    stores/           # State management
+ prisma/               # Database schema and migrations
+ public/               # Static assets
+ docs/                 # Project documentation
 ```
 
 ## 1.9 Stakeholders

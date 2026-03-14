@@ -1,71 +1,71 @@
 # Backend Architecture - How It Works
 
-## 🏗️ Backend Architecture Overview
+##  Backend Architecture Overview
 
 The backend uses **Next.js API Routes** - which means the backend and frontend are in the same application but separated logically.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     CLIENT (Browser)                         │
-│              React Components + User Interface               │
-└──────────────────────┬──────────────────────────────────────┘
-                       │ HTTP Requests (fetch/axios)
-                       │
-┌──────────────────────▼──────────────────────────────────────┐
-│                  NEXT.JS API ROUTES                          │
-│                 (/app/api/**/route.ts)                       │
-│  - Authentication & Authorization                            │
-│  - Request Validation                                        │
-│  - Business Logic                                            │
-└──────────────────────┬──────────────────────────────────────┘
-                       │ Prisma ORM
-                       │
-┌──────────────────────▼──────────────────────────────────────┐
-│                   DATABASE (MySQL)                           │
-│  - Users, Products, Orders                                   │
-│  - Categories, Reviews, Cart Items                           │
-│  - Persistent Data Storage                                   │
-└─────────────────────────────────────────────────────────────┘
+
+                     CLIENT (Browser)                         
+              React Components + User Interface               
+
+                        HTTP Requests (fetch/axios)
+                       
+
+                  NEXT.JS API ROUTES                          
+                 (/app/api/**/route.ts)                       
+  - Authentication & Authorization                            
+  - Request Validation                                        
+  - Business Logic                                            
+
+                        Prisma ORM
+                       
+
+                   DATABASE (MySQL)                           
+  - Users, Products, Orders                                   
+  - Categories, Reviews, Cart Items                           
+  - Persistent Data Storage                                   
+
 ```
 
 ---
 
-## 📂 Backend File Structure
+##  Backend File Structure
 
 ```
 app/api/
-├── auth/                    # Authentication (NextAuth.js)
-│   └── [...nextauth]/
-├── products/                # Product management
-│   └── route.ts
-├── wishlist/               # Wishlist feature
-│   ├── route.ts            # GET (fetch) & POST (add)
-│   └── [id]/route.ts       # DELETE (remove)
-├── orders/                 # Order management
-│   └── [orderId]/
-│       └── tracking/       # Customer tracking
-│           └── route.ts
-├── admin/                  # Admin-only endpoints
-│   ├── products/
-│   ├── orders/
-│   │   └── [orderId]/
-│   │       └── shipping/   # Admin shipping management
-│   │           └── route.ts
-│   └── reviews/
-└── contact/
-    └── route.ts
+ auth/                    # Authentication (NextAuth.js)
+    [...nextauth]/
+ products/                # Product management
+    route.ts
+ wishlist/               # Wishlist feature
+    route.ts            # GET (fetch) & POST (add)
+    [id]/route.ts       # DELETE (remove)
+ orders/                 # Order management
+    [orderId]/
+        tracking/       # Customer tracking
+            route.ts
+ admin/                  # Admin-only endpoints
+    products/
+    orders/
+       [orderId]/
+           shipping/   # Admin shipping management
+               route.ts
+    reviews/
+ contact/
+     route.ts
 
 lib/
-├── db/
-│   └── prisma.ts           # Database connection
-├── services/
-│   └── logistics.ts        # Logistics service
-└── auth.ts                 # NextAuth configuration
+ db/
+    prisma.ts           # Database connection
+ services/
+    logistics.ts        # Logistics service
+ auth.ts                 # NextAuth configuration
 ```
 
 ---
 
-## 🔄 How a Request Works (Step-by-Step Example)
+##  How a Request Works (Step-by-Step Example)
 
 ### Example: Adding a Product to Wishlist
 
@@ -160,7 +160,7 @@ if (response.ok) {
 
 ---
 
-## 🔐 Authentication & Authorization
+##  Authentication & Authorization
 
 ### How NextAuth.js Works
 
@@ -216,7 +216,7 @@ export const authOptions = {
 
 ---
 
-## 💾 Database Layer (Prisma ORM)
+##  Database Layer (Prisma ORM)
 
 ### Prisma Schema Example:
 ```prisma
@@ -269,14 +269,14 @@ await prisma.cartItem.delete({
 ```
 
 ### Prisma automatically:
-- ✅ Prevents SQL injection (parameterized queries)
-- ✅ Provides TypeScript types
-- ✅ Handles database connections
-- ✅ Manages migrations
+-  Prevents SQL injection (parameterized queries)
+-  Provides TypeScript types
+-  Handles database connections
+-  Manages migrations
 
 ---
 
-## 🎯 Key Backend Concepts
+##  Key Backend Concepts
 
 ### 1. **RESTful API Pattern**
 ```
@@ -335,21 +335,21 @@ export async function POST(request: NextRequest) {
 
 ---
 
-## 🔄 Feature-Specific Backend Implementations
+##  Feature-Specific Backend Implementations
 
 ### **Wishlist Backend** (`/app/api/wishlist/`)
 
 **Database Design:**
 ```
 cart_items table:
-┌────┬─────────┬────────────┬──────────┬───────────┐
-│ id │ user_id │ product_id │ quantity │ item_type │
-├────┼─────────┼────────────┼──────────┼───────────┤
-│ 1  │ 5       │ 101        │ 1        │ cart      │
-│ 2  │ 5       │ 102        │ 1        │ wishlist  │ ← Wishlist
-│ 3  │ 5       │ 103        │ 3        │ cart      │
-│ 4  │ 8       │ 101        │ 1        │ wishlist  │ ← Wishlist
-└────┴─────────┴────────────┴──────────┴───────────┘
+
+ id  user_id  product_id  quantity  item_type 
+
+ 1   5        101         1         cart      
+ 2   5        102         1         wishlist   ← Wishlist
+ 3   5        103         3         cart      
+ 4   8        101         1         wishlist   ← Wishlist
+
 ```
 
 **Why this design?**
@@ -411,7 +411,7 @@ await prisma.paymentOrder.update({
 
 ---
 
-## 🛡️ Security Measures
+##  Security Measures
 
 ### 1. **Password Security**
 ```typescript
@@ -430,10 +430,10 @@ const isValid = await bcrypt.compare(inputPassword, user.password_hash);
 
 ### 2. **SQL Injection Prevention**
 ```typescript
-// ❌ UNSAFE (vulnerable to SQL injection)
+//  UNSAFE (vulnerable to SQL injection)
 const query = `SELECT * FROM users WHERE email = '${userInput}'`;
 
-// ✅ SAFE (Prisma uses parameterized queries)
+//  SAFE (Prisma uses parameterized queries)
 const user = await prisma.user.findUnique({
   where: { email: userInput }
 });
@@ -496,41 +496,41 @@ const product = await prisma.product.findUnique({
 
 ---
 
-## 📊 Backend Data Flow Summary
+##  Backend Data Flow Summary
 
 ```
-┌──────────────┐
-│   Browser    │
-│  (Frontend)  │
-└──────┬───────┘
-       │ fetch('/api/wishlist', {...})
-       │
-┌──────▼────────────────────────────────────────┐
-│         API Route Handler                      │
-│  1. ✓ Check authentication (NextAuth)         │
-│  2. ✓ Validate request data                   │
-│  3. ✓ Check authorization (user permissions)  │
-│  4. → Call business logic                     │
-└──────┬────────────────────────────────────────┘
-       │
-┌──────▼────────────────────────────────────────┐
-│         Prisma ORM Layer                       │
-│  - Generates SQL queries                       │
-│  - Type-safe operations                        │
-│  - Connection pooling                          │
-└──────┬────────────────────────────────────────┘
-       │
-┌──────▼────────────────────────────────────────┐
-│         MySQL Database                         │
-│  - Stores all data                             │
-│  - Enforces constraints                        │
-│  - ACID transactions                           │
-└───────────────────────────────────────────────┘
+
+   Browser    
+  (Frontend)  
+
+        fetch('/api/wishlist', {...})
+       
+
+         API Route Handler                      
+  1.  Check authentication (NextAuth)         
+  2.  Validate request data                   
+  3.  Check authorization (user permissions)  
+  4. → Call business logic                     
+
+       
+
+         Prisma ORM Layer                       
+  - Generates SQL queries                       
+  - Type-safe operations                        
+  - Connection pooling                          
+
+       
+
+         MySQL Database                         
+  - Stores all data                             
+  - Enforces constraints                        
+  - ACID transactions                           
+
 ```
 
 ---
 
-## 🔌 API Endpoint Reference
+##  API Endpoint Reference
 
 ### Public Endpoints (No Authentication Required)
 
@@ -572,7 +572,7 @@ const product = await prisma.product.findUnique({
 
 ---
 
-## 🗄️ Database Schema Overview
+##  Database Schema Overview
 
 ### Core Tables
 
@@ -661,7 +661,7 @@ const product = await prisma.product.findUnique({
 
 ---
 
-## 🚀 Performance Considerations
+##  Performance Considerations
 
 ### 1. **Database Indexing**
 ```prisma
@@ -681,7 +681,7 @@ model Product {
 
 ### 2. **Query Optimization**
 ```typescript
-// ❌ Bad: N+1 query problem
+//  Bad: N+1 query problem
 const orders = await prisma.order.findMany();
 for (const order of orders) {
   const items = await prisma.orderItem.findMany({
@@ -689,7 +689,7 @@ for (const order of orders) {
   });
 }
 
-// ✅ Good: Single query with include
+//  Good: Single query with include
 const orders = await prisma.order.findMany({
   include: {
     order_items: {
@@ -723,7 +723,7 @@ const products = await cache('products:all', async () => {
 
 ---
 
-## 🔍 Error Handling Best Practices
+##  Error Handling Best Practices
 
 ```typescript
 export async function POST(request: NextRequest) {
@@ -762,7 +762,7 @@ export async function POST(request: NextRequest) {
 
 ---
 
-## 📚 Additional Resources
+##  Additional Resources
 
 ### Next.js API Routes
 - [Official Docs](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)

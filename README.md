@@ -10,7 +10,7 @@ This is the modern Next.js migration of the EasyBuyStore e-commerce website, ori
 
 ## Original PHP Application Features
 
-✅ Customer Portal:
+ Customer Portal:
 - Product browsing with categories
 - Shopping cart (localStorage + database sync)
 - User authentication (registration/login)
@@ -18,29 +18,29 @@ This is the modern Next.js migration of the EasyBuyStore e-commerce website, ori
 - Order history
 - PayPal payment integration
 
-✅ Admin Dashboard:
+ Admin Dashboard:
 - Product management (CRUD)
 - Order management
 - Analytics and reporting
 - Category management
 - Contact inquiry management
 
-## Migration Progress - 95% Complete! 🎉
+## Migration Progress - 95% Complete! 
 
-### ✅ Phase 1: Project Setup (Completed)
+###  Phase 1: Project Setup (Completed)
 - [x] Next.js 16+ with App Router
 - [x] TypeScript configuration
 - [x] Tailwind CSS setup
 - [x] Project structure created
 - [x] Environment variables configured
 
-### ✅ Phase 2: Backend & Database (Completed)
+###  Phase 2: Backend & Database (Completed)
 - [x] Prisma ORM setup with Prisma 7
 - [x] Database schema migration (10 models)
 - [x] MySQL connection configured
 - [x] API route structure implemented
 
-### ✅ Phase 3: API Development (Completed)
+###  Phase 3: API Development (Completed)
 - [x] Authentication API (NextAuth.js v5)
 - [x] Products API (list, details, admin CRUD)
 - [x] Cart API (save, load, clear)
@@ -49,7 +49,7 @@ This is the modern Next.js migration of the EasyBuyStore e-commerce website, ori
 - [x] Contact form API
 - [x] Admin APIs (products, orders)
 
-### ✅ Phase 4: Frontend Pages (Completed)
+###  Phase 4: Frontend Pages (Completed)
 **Customer Portal:**
 - [x] Home page with hero, categories, featured products
 - [x] Product listing with search, filters, sorting
@@ -68,7 +68,7 @@ This is the modern Next.js migration of the EasyBuyStore e-commerce website, ori
 - [x] Order management with status tracking
 - [x] Protected admin routes
 
-### ✅ Phase 5: Components & State (Completed)
+###  Phase 5: Components & State (Completed)
 - [x] Navbar with cart count and user menu
 - [x] Footer with links
 - [x] Add to Cart button component
@@ -121,7 +121,7 @@ The application uses the existing MySQL database with the following tables:
 - `promo_codes` - Promotional codes
 - `reviews` - Product reviews
 
-## 📚 Documentation
+##  Documentation
 
 Comprehensive setup and usage guides are available in the `docs/` folder:
 
@@ -179,18 +179,18 @@ See `.env.example` for a complete template.
 
 ```
 easybuystore-nextjs/
-├── app/
-│   ├── (customer)/         # Customer-facing pages
-│   ├── (admin)/           # Admin dashboard pages
-│   ├── api/               # API routes
-│   ├── globals.css        # Global styles
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-├── components/            # Reusable components
-├── lib/                   # Utilities & helpers
-├── prisma/               # Prisma schema & migrations
-├── public/               # Static assets
-└── types/                # TypeScript types
+ app/
+    (customer)/         # Customer-facing pages
+    (admin)/           # Admin dashboard pages
+    api/               # API routes
+    globals.css        # Global styles
+    layout.tsx         # Root layout
+    page.tsx           # Home page
+ components/            # Reusable components
+ lib/                   # Utilities & helpers
+ prisma/               # Prisma schema & migrations
+ public/               # Static assets
+ types/                # TypeScript types
 ```
 
 ## Key Differences from PHP Version

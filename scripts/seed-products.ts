@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting to seed products...');
+  console.log(' Starting to seed products...');
 
   // First, let's create some categories
   const categories = [
@@ -39,7 +39,7 @@ async function main() {
     },
   ];
 
-  console.log('📦 Creating categories...');
+  console.log(' Creating categories...');
   for (const category of categories) {
     const existing = await prisma.category.findFirst({
       where: { category_name: category.category_name }
@@ -49,9 +49,9 @@ async function main() {
       await prisma.category.create({
         data: category,
       });
-      console.log(`✅ Created category: ${category.category_name}`);
+      console.log(` Created category: ${category.category_name}`);
     } else {
-      console.log(`⏭️  Category already exists: ${category.category_name}`);
+      console.log(`⏭  Category already exists: ${category.category_name}`);
     }
   }
 
@@ -300,22 +300,22 @@ async function main() {
     ...jewelryProducts,
   ];
 
-  console.log('👗 Creating products...');
+  console.log(' Creating products...');
   for (const product of allProducts) {
     await prisma.product.create({
       data: product,
     });
-    console.log(`✅ Created: ${product.product_name}`);
+    console.log(` Created: ${product.product_name}`);
   }
 
-  console.log('\n🎉 Successfully seeded database with products!');
-  console.log(`📊 Total categories: ${categories.length}`);
-  console.log(`📊 Total products: ${allProducts.length}`);
+  console.log('\n Successfully seeded database with products!');
+  console.log(` Total categories: ${categories.length}`);
+  console.log(` Total products: ${allProducts.length}`);
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error seeding database:', e);
+    console.error(' Error seeding database:', e);
     process.exit(1);
   })
   .finally(async () => {

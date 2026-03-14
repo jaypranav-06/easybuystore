@@ -1,23 +1,23 @@
-# 👤 Admin Account Credentials
+#  Admin Account Credentials
 
-## ✅ Admin Account Created Successfully!
+##  Admin Account Created Successfully!
 
 Your admin account has been created and is ready to use.
 
 ---
 
-## 📋 Login Credentials:
+##  Login Credentials:
 
 ```
-📧 Email:     admin@easybuy.com
-👤 Username:  admin
-🔑 Password:  EasyBuy@Admin2026
-🎭 Role:      super_admin
+ Email:     admin@easybuy.com
+ Username:  admin
+ Password:  EasyBuy@Admin2026
+ Role:      super_admin
 ```
 
 ---
 
-## 🌐 Login URL:
+##  Login URL:
 
 - **Login Page:** http://localhost:3000/signin
 - **Main Site:** http://localhost:3000
@@ -26,7 +26,7 @@ Your admin account has been created and is ready to use.
 
 ---
 
-## ⚠️ IMPORTANT SECURITY NOTES:
+##  IMPORTANT SECURITY NOTES:
 
 1. **Change the password immediately** after your first login
 2. **Do not share** these credentials with anyone
@@ -35,20 +35,20 @@ Your admin account has been created and is ready to use.
 
 ---
 
-## 🎯 What You Can Do as Admin:
+##  What You Can Do as Admin:
 
-- ✅ Add new products
-- ✅ Edit existing products
-- ✅ Delete products
-- ✅ Manage categories
-- ✅ View and manage orders
-- ✅ Manage customer accounts
-- ✅ View analytics and reports
-- ✅ Configure store settings
+-  Add new products
+-  Edit existing products
+-  Delete products
+-  Manage categories
+-  View and manage orders
+-  Manage customer accounts
+-  View analytics and reports
+-  Configure store settings
 
 ---
 
-## 📝 Next Steps:
+##  Next Steps:
 
 1. Go to http://localhost:3000/signin
 2. Login with the admin credentials above
