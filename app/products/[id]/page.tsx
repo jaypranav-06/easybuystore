@@ -5,6 +5,9 @@ import prisma from '@/lib/db/prisma';
 import { Star, ShoppingBag, Truck, Shield, ArrowLeft } from 'lucide-react';
 import AddToCartButton from '@/components/customer/AddToCartButton';
 import AddToWishlistButton from '@/components/customer/AddToWishlistButton';
+import ReviewForm from '@/components/customer/ReviewForm';
+import ReviewStatistics from '@/components/customer/ReviewStatistics';
+import ReviewList from '@/components/customer/ReviewList';
 
 async function getProduct(id: string) {
   const productId = parseInt(id);
@@ -176,40 +179,32 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </div>
 
           {/* Reviews Section */}
-          {product.reviews.length > 0 && (
-            <div className="border-t p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
-              <div className="space-y-6">
-                {product.reviews.map((review) => (
-                  <div key={review.id} className="border-b pb-6 last:border-0">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {review.user.first_name} {review.user.last_name}
-                        </p>
-                        <div className="flex text-yellow-400 mt-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className="w-4 h-4"
-                              fill={i < review.rating ? 'currentColor' : 'none'}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <span className="text-sm text-gray-500">
-                        {new Date(review.created_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                    {review.title && (
-                      <h4 className="font-semibold text-gray-800 mb-1">{review.title}</h4>
-                    )}
-                    {review.comment && <p className="text-gray-600">{review.comment}</p>}
-                  </div>
-                ))}
+          <div className="border-t p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">Reviews & Ratings</h2>
+
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 mb-8">
+              {/* Review Statistics */}
+              <div className="xl:col-span-1">
+                <ReviewStatistics reviews={product.reviews} avgRating={avgRating} />
+              </div>
+
+              {/* Review Form */}
+              <div className="xl:col-span-1">
+                <ReviewForm productId={product.product_id} />
+              </div>
+
+              {/* Reviews List */}
+              <div className="xl:col-span-2">
+                <ReviewList
+                  reviews={product.reviews.map(review => ({
+                    ...review,
+                    created_at: new Date(review.created_at)
+                  }))}
+                  productId={product.product_id}
+                />
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

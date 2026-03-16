@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Package, ShoppingBag, ArrowLeft } from 'lucide-react';
 import prisma from '@/lib/db/prisma';
+import OrderItemWithReview from '@/components/customer/OrderItemWithReview';
 
 async function getUserOrders(userId: number) {
   const orders = await prisma.paymentOrder.findMany({
@@ -23,7 +24,19 @@ async function getUserOrders(userId: number) {
     },
   });
 
-  return orders;
+  // Get all reviews for this user
+  const reviews = await prisma.review.findMany({
+    where: { user_id: userId },
+    select: {
+      product_id: true,
+      id: true,
+    },
+  });
+
+  // Create a map of product_id to review existence
+  const reviewedProducts = new Map(reviews.map(r => [r.product_id, true]));
+
+  return { orders, reviewedProducts };
 }
 
 export default async function OrdersPage() {
@@ -34,7 +47,7 @@ export default async function OrdersPage() {
   }
 
   const userId = parseInt(session.user.id);
-  const orders = await getUserOrders(userId);
+  const { orders, reviewedProducts } = await getUserOrders(userId);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
@@ -68,7 +81,7 @@ export default async function OrdersPage() {
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
-              <div key={order.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div key={order.order_id} className="bg-white rounded-lg shadow-sm overflow-hidden">
                 {/* Order Header */}
                 <div className="bg-gray-50 px-6 py-4 border-b">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -121,38 +134,13 @@ export default async function OrdersPage() {
                 <div className="p-6">
                   <div className="space-y-4">
                     {order.order_items.map((item) => (
-                      <div key={item.id} className="flex gap-4">
-                        <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                          {item.product?.image_url ? (
-                            <Image
-                              src={item.product.image_url}
-                              alt={item.product.product_name || 'Product'}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <ShoppingBag className="w-8 h-8 text-gray-400" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <Link
-                            href={`/products/${item.product_id}`}
-                            className="font-semibold text-gray-900 hover:text-primary"
-                          >
-                            {item.product?.product_name || 'Product'}
-                          </Link>
-                          <p className="text-sm text-gray-600 mt-1">
-                            Quantity: {item.quantity} × Rs {Number(item.price).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-gray-900">
-                            Rs {Number(item.subtotal).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </p>
-                        </div>
-                      </div>
+                      <OrderItemWithReview
+                        key={item.id}
+                        item={item}
+                        orderId={order.order_id}
+                        orderStatus={order.order_status}
+                        hasReviewed={reviewedProducts.has(item.product_id)}
+                      />
                     ))}
                   </div>
 
@@ -168,7 +156,7 @@ export default async function OrdersPage() {
                     </div>
                     <div className="flex gap-3">
                       <Link
-                        href={`/account/orders/${order.id}`}
+                        href={`/account/orders/${order.order_id}`}
                         className="px-6 py-2 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition"
                       >
                         View Details

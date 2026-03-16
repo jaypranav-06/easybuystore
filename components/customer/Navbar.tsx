@@ -6,6 +6,7 @@ import { useCartStore } from '@/lib/stores/cart-store';
 import { useWishlistStore } from '@/lib/stores/wishlist-store';
 import { ShoppingCart, User, Menu, Search, Heart } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import SearchModal from './SearchModal';
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -13,6 +14,7 @@ export default function Navbar() {
   const wishlistCount = useWishlistStore((state) => state.count);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -71,7 +73,11 @@ export default function Navbar() {
           {/* Right Section */}
           <div className="flex items-center space-x-4">
             {/* Search Icon */}
-            <button className="text-text-primary hover:text-accent transition-colors p-2">
+            <button
+              onClick={() => setSearchModalOpen(true)}
+              className="text-text-primary hover:text-accent transition-colors p-2"
+              title="Search products"
+            >
               <Search className="w-5 h-5" />
             </button>
 
@@ -205,6 +211,9 @@ export default function Navbar() {
           </div>
         )}
       </div>
+
+      {/* Search Modal */}
+      <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
     </nav>
   );
 }

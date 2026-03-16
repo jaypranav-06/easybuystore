@@ -17,6 +17,11 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'paypal' | 'cod'>('cod'); // Default to COD
+
+  // Check if PayPal is configured
+  const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+  const isPayPalConfigured = paypalClientId && paypalClientId !== 'your-paypal-client-id' && paypalClientId.length > 10;
 
   const [shippingData, setShippingData] = useState({
     firstName: '',
@@ -92,6 +97,50 @@ export default function CheckoutPage() {
     }
   };
 
+  const handleCODOrder = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: item.discount_price || item.price,
+          })),
+          total: total,
+          subtotal: subtotal,
+          shipping: shipping,
+          tax: tax,
+          shipping_name: `${shippingData.firstName} ${shippingData.lastName}`,
+          shipping_address: shippingData.address,
+          shipping_city: shippingData.city,
+          shipping_state: shippingData.state,
+          shipping_zip: shippingData.zipCode,
+          shipping_country: shippingData.country || 'Sri Lanka',
+          shipping_phone: shippingData.phone,
+          payment_method: 'cod',
+          payment_status: 'pending',
+        }),
+      });
+
+      const orderData = await orderResponse.json();
+      if (orderData.success) {
+        setOrderId(orderData.order.order_number);
+        clearCart();
+        setStep(3);
+      } else {
+        setError(orderData.error || 'Failed to create order');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to process order');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onApprove = async (data: any) => {
     setLoading(true);
     try {
@@ -114,6 +163,7 @@ export default function CheckoutPage() {
           shipping_city: shippingData.city,
           shipping_state: shippingData.state,
           shipping_zip: shippingData.zipCode,
+          shipping_country: shippingData.country || 'Sri Lanka',
           shipping_phone: shippingData.phone,
           payment_method: 'paypal',
           payment_status: 'pending',
@@ -393,33 +443,106 @@ export default function CheckoutPage() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2 mb-4 text-gray-600">
-                  <Lock className="w-5 h-5" />
-                  <span className="text-sm">Secure payment powered by PayPal</span>
+                {/* Payment Method Selection */}
+                <div className="mb-6">
+                  <h3 className="font-semibold text-gray-900 mb-4">Select Payment Method</h3>
+                  <div className="space-y-3">
+                    {/* Cash on Delivery Option */}
+                    <label className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition ${
+                      paymentMethod === 'cod' ? 'border-primary bg-surface' : 'border-gray-200 hover:border-gray-300'
+                    }`}>
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="cod"
+                        checked={paymentMethod === 'cod'}
+                        onChange={(e) => setPaymentMethod(e.target.value as 'cod')}
+                        className="w-5 h-5 text-primary"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <Truck className="w-5 h-5 text-primary" />
+                          <span className="font-semibold text-gray-900">Cash on Delivery</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">Pay with cash when your order is delivered</p>
+                      </div>
+                    </label>
+
+                    {/* PayPal Option (if configured) */}
+                    {isPayPalConfigured && (
+                      <label className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition ${
+                        paymentMethod === 'paypal' ? 'border-primary bg-surface' : 'border-gray-200 hover:border-gray-300'
+                      }`}>
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="paypal"
+                          checked={paymentMethod === 'paypal'}
+                          onChange={(e) => setPaymentMethod(e.target.value as 'paypal')}
+                          className="w-5 h-5 text-primary"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <Lock className="w-5 h-5 text-primary" />
+                            <span className="font-semibold text-gray-900">PayPal</span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">Pay securely with PayPal</p>
+                        </div>
+                      </label>
+                    )}
+                  </div>
                 </div>
 
-                <PayPalScriptProvider
-                  options={{
-                    clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || '',
-                    currency: 'USD',
-                  }}
-                >
-                  <PayPalButtons
-                    createOrder={createOrder}
-                    onApprove={onApprove}
-                    onError={(err) => {
-                      setError('PayPal payment failed. Please try again.');
-                      console.error('PayPal error:', err);
-                    }}
+                {/* Show payment buttons based on selected method */}
+                {paymentMethod === 'cod' ? (
+                  <button
+                    onClick={handleCODOrder}
                     disabled={loading}
-                    style={{
-                      layout: 'vertical',
-                      color: 'blue',
-                      shape: 'rect',
-                      label: 'paypal',
-                    }}
-                  />
-                </PayPalScriptProvider>
+                    className="w-full bg-gradient-to-r from-primary to-accent text-white py-4 rounded-lg font-semibold hover:from-primary-light hover:to-accent-light transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-5 h-5" />
+                        Place Order (Cash on Delivery)
+                      </>
+                    )}
+                  </button>
+                ) : isPayPalConfigured ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-4 text-gray-600">
+                      <Lock className="w-5 h-5" />
+                      <span className="text-sm">Secure payment powered by PayPal</span>
+                    </div>
+
+                    <PayPalScriptProvider
+                      options={{
+                        clientId: paypalClientId || '',
+                        currency: 'USD',
+                      }}
+                    >
+                      <PayPalButtons
+                        createOrder={createOrder}
+                        onApprove={onApprove}
+                        onError={(err) => {
+                          setError('PayPal payment failed. Please try again.');
+                          console.error('PayPal error:', err);
+                        }}
+                        disabled={loading}
+                        style={{
+                          layout: 'vertical',
+                          color: 'blue',
+                          shape: 'rect',
+                          label: 'paypal',
+                        }}
+                      />
+                    </PayPalScriptProvider>
+                  </>
+                ) : null}
               </div>
             )}
           </div>

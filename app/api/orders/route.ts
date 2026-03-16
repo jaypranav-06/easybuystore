@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
         shipping_phone: validatedData.shipping_phone,
         order_status: 'pending',
         payment_status: 'pending',
+        updated_at: new Date(),
         order_items: {
           create: validatedData.items.map((item) => ({
             product_id: item.product_id,

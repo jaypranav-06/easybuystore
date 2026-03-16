@@ -165,7 +165,8 @@ See `prisma/schema.prisma` for the complete schema.
 Detailed documentation is available in the `/docs` directory:
 
 - [Supabase Setup Guide](docs/SUPABASE_SETUP.md) - Database setup with Supabase
-- [PayPal Integration](docs/PAYPAL_INTEGRATION.md) - Payment integration guide
+- [PayPal Setup Guide](docs/PAYPAL_SETUP_GUIDE.md) - Complete PayPal payment integration guide
+- [Firebase Setup Guide](docs/FIREBASE_SETUP_GUIDE.md) - Google OAuth authentication setup
 - [Setup Guide](docs/SETUP_GUIDE.md) - Detailed setup instructions
 - [Admin Credentials](docs/ADMIN_CREDENTIALS.md) - Admin user management
 - [Backend Architecture](docs/BACKEND_ARCHITECTURE.md) - System architecture
@@ -174,10 +175,12 @@ Detailed documentation is available in the `/docs` directory:
 ## Features in Detail
 
 ### Authentication
-- Secure user authentication with NextAuth.js
+- Secure user authentication with NextAuth.js v5
+- Email/password authentication with bcrypt hashing
+- Google OAuth integration (Sign in with Google)
 - Separate admin and customer authentication
-- Password hashing with bcrypt
-- Session management
+- Session management and JWT tokens
+- Auto-user provisioning for OAuth users
 
 ### Shopping Cart
 - Persistent cart across sessions
