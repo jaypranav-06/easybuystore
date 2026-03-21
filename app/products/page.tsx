@@ -30,6 +30,7 @@ function ProductsPageContent() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState('newest');
   const [showFilters, setShowFilters] = useState(false);
@@ -50,6 +51,7 @@ function ProductsPageContent() {
     }
     if (searchFromUrl) {
       setSearchQuery(searchFromUrl);
+      setDebouncedSearchQuery(searchFromUrl);
     }
     if (featuredFromUrl === 'true') {
       setShowFeatured(true);
@@ -62,13 +64,22 @@ function ProductsPageContent() {
     }
   }, [searchParams]);
 
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   useEffect(() => {
     fetchCategories();
   }, []);
 
   useEffect(() => {
     fetchProducts();
-  }, [selectedCategory, sortBy, searchQuery, showFeatured, showNewArrivals, showBestsellers]);
+  }, [selectedCategory, sortBy, debouncedSearchQuery, showFeatured, showNewArrivals, showBestsellers]);
 
   const fetchCategories = async () => {
     try {
@@ -87,7 +98,7 @@ function ProductsPageContent() {
     try {
       const params = new URLSearchParams();
       if (selectedCategory) params.append('category', selectedCategory);
-      if (searchQuery) params.append('search', searchQuery);
+      if (debouncedSearchQuery) params.append('search', debouncedSearchQuery);
       if (showFeatured) params.append('featured', 'true');
       if (showNewArrivals) params.append('new', 'true');
       if (showBestsellers) params.append('bestseller', 'true');
