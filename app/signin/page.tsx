@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function SignInPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -15,25 +18,59 @@ export default function SignInPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Check for error in URL parameters (from NextAuth)
+  const urlError = searchParams.get('error');
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
+    // Client-side validation
+    if (!formData.email || !formData.password) {
+      setError('Please enter both email and password');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Use NextAuth's built-in redirect with callbackUrl
-      // This will automatically redirect on success
-      await signIn('credentials', {
+      // Use NextAuth signIn with redirect: false to handle errors properly
+      const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
-        callbackUrl: '/',
+        redirect: false,
       });
 
-      // Note: Successful logins redirect automatically, so we won't reach here
-      // If we do reach here, keep loading state to avoid confusion during redirect
+      if (result?.error) {
+        // Handle specific error cases
+        if (result.error === 'CredentialsSignin') {
+          setError('Invalid email or password. Please check your credentials and try again.');
+        } else {
+          setError(result.error || 'An error occurred during sign in');
+        }
+        setLoading(false);
+      } else if (result?.ok) {
+        // Successful login - redirect to home or callback URL
+        // Only use callbackUrl if explicitly provided, otherwise always go to home
+        const callbackUrl = searchParams.get('callbackUrl');
+
+        // If no callbackUrl or if it's the settings page, go to home instead
+        if (!callbackUrl || callbackUrl === '/account/settings') {
+          router.push('/');
+        } else {
+          router.push(callbackUrl);
+        }
+        router.refresh();
+      }
     } catch (err) {
       console.error('Sign in error:', err);
-      setError('Invalid email or password');
+      setError('An unexpected error occurred. Please try again.');
       setLoading(false);
     }
   };
@@ -49,9 +86,33 @@ export default function SignInPage() {
 
         {/* Sign In Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
+          {/* Display error from form submission */}
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              {error}
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-800">Sign In Failed</p>
+                <p className="text-sm text-red-700 mt-1">{error}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Display error from URL (NextAuth redirects) */}
+          {urlError && !error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-800">Authentication Error</p>
+                <p className="text-sm text-red-700 mt-1">
+                  {urlError === 'CredentialsSignin'
+                    ? 'Invalid email or password'
+                    : urlError === 'OAuthAccountNotLinked'
+                    ? 'This email is already registered with a different sign-in method'
+                    : urlError === 'OAuthCallback'
+                    ? 'Error during OAuth sign-in. Please try again.'
+                    : 'An error occurred during authentication'}
+                </p>
+              </div>
             </div>
           )}
 
@@ -143,7 +204,14 @@ export default function SignInPage() {
           {/* Google Sign-In Button */}
           <button
             type="button"
-            onClick={() => signIn('google', { callbackUrl: '/' })}
+            onClick={async () => {
+              try {
+                setError('');
+                await signIn('google', { callbackUrl: searchParams.get('callbackUrl') || '/' });
+              } catch (err) {
+                setError('Failed to sign in with Google. Please try again.');
+              }
+            }}
             disabled={loading}
             className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >

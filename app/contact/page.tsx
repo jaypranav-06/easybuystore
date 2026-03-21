@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
 
 export default function ContactPage() {
@@ -116,9 +117,12 @@ export default function ContactPage() {
             <div className="bg-gradient-to-r from-primary to-accent rounded-lg p-6 text-white">
               <h3 className="text-xl font-bold mb-2">Looking for quick answers?</h3>
               <p className="text-gray-100 mb-4">Check out our FAQ section for instant help with common questions.</p>
-              <button className="bg-white text-primary px-6 py-2 rounded-lg font-semibold hover:bg-surface transition">
+              <Link
+                href="/faq"
+                className="inline-block bg-white text-primary px-6 py-2 rounded-lg font-semibold hover:bg-surface transition"
+              >
                 View FAQ
-              </button>
+              </Link>
             </div>
           </div>
 

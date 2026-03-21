@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
-import { User, Mail, Lock, Phone, MapPin, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, Phone, MapPin, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -61,10 +61,18 @@ export default function SignUpPage() {
           router.push('/signin');
         }, 2000);
       } else {
-        setError(data.error || 'Registration failed');
+        // Handle specific error messages
+        if (data.error?.includes('email')) {
+          setError('This email is already registered. Please use a different email or sign in.');
+        } else if (data.error?.includes('validation')) {
+          setError('Please check your input and try again.');
+        } else {
+          setError(data.error || 'Registration failed. Please try again.');
+        }
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      console.error('Registration error:', err);
+      setError('An unexpected error occurred. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -82,14 +90,22 @@ export default function SignUpPage() {
         {/* Sign Up Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              {error}
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-800">Registration Failed</p>
+                <p className="text-sm text-red-700 mt-1">{error}</p>
+              </div>
             </div>
           )}
 
           {success && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-              {success}
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-green-800">Success!</p>
+                <p className="text-sm text-green-700 mt-1">{success}</p>
+              </div>
             </div>
           )}
 
@@ -296,7 +312,14 @@ export default function SignUpPage() {
           {/* Google Sign-Up Button */}
           <button
             type="button"
-            onClick={() => signIn('google', { callbackUrl: '/' })}
+            onClick={async () => {
+              try {
+                setError('');
+                await signIn('google', { callbackUrl: '/' });
+              } catch (err) {
+                setError('Failed to sign up with Google. Please try again.');
+              }
+            }}
             disabled={loading}
             className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
