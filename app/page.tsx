@@ -3,6 +3,7 @@ import Image from 'next/image';
 import prisma from '@/lib/db/prisma';
 import { ShoppingBag } from 'lucide-react';
 import ProductCardClient from '@/components/customer/ProductCardClient';
+import HomeSearchBar from '@/components/customer/HomeSearchBar';
 
 async function getHomePageData() {
   const [featuredProducts, newArrivals, bestsellers, categories] = await Promise.all([
@@ -91,6 +92,12 @@ export default async function HomePage() {
               <p className="text-lg md:text-xl text-gray-300 max-w-lg leading-relaxed">
                 Discover timeless fashion pieces crafted with precision and passion. Elevate your wardrobe with our exclusive collection.
               </p>
+
+              {/* Search Bar */}
+              <div className="pt-4">
+                <HomeSearchBar />
+              </div>
+
               <div className="flex flex-wrap gap-4 pt-4">
                 <Link href="/products" className="btn-accent">
                   Explore Collection

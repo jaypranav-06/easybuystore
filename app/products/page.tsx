@@ -110,30 +110,98 @@ function ProductsPageContent() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="bg-white border-b">
+      {/* Header with Enhanced Search */}
+      <div className="bg-gradient-to-br from-primary/5 to-accent/5 border-b border-gray-200">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">All Products</h1>
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 text-center">
+              Discover Amazing Products
+            </h1>
+            <p className="text-gray-600 text-center mb-6">
+              {products.length > 0 ? `${products.length} products available` : 'Find your perfect match'}
+            </p>
 
-          {/* Search Bar */}
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
-              />
+            {/* Enhanced Search Bar */}
+            <div className="flex flex-col md:flex-row gap-3">
+              <div className="flex-1 relative group">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-accent transition-colors w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search by name, category, description..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-accent/20 focus:border-accent transition-all duration-300 text-gray-900 placeholder:text-gray-500 shadow-sm hover:shadow-md"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm font-medium"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`px-6 py-4 rounded-xl flex items-center justify-center gap-2 font-semibold transition-all duration-300 shadow-sm hover:shadow-md ${
+                  showFilters
+                    ? 'bg-accent text-white'
+                    : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-accent'
+                }`}
+              >
+                <Filter className="w-5 h-5" />
+                <span className="hidden sm:inline">Filters</span>
+              </button>
             </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
-            >
-              <Filter className="w-5 h-5" />
-              Filters
-            </button>
+
+            {/* Active Filters Display */}
+            {(selectedCategory || showFeatured || showNewArrivals || showBestsellers || searchQuery) && (
+              <div className="flex flex-wrap gap-2 mt-4 items-center">
+                <span className="text-sm text-gray-600 font-medium">Active filters:</span>
+                {searchQuery && (
+                  <span className="px-3 py-1 bg-accent/10 text-accent rounded-full text-sm font-medium flex items-center gap-2">
+                    Search: "{searchQuery}"
+                    <button onClick={() => setSearchQuery('')} className="hover:text-accent-light">✕</button>
+                  </span>
+                )}
+                {selectedCategory && (
+                  <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium flex items-center gap-2">
+                    {categories.find(c => String(c.category_id) === selectedCategory)?.category_name || 'Category'}
+                    <button onClick={() => setSelectedCategory('')} className="hover:text-primary-light">✕</button>
+                  </span>
+                )}
+                {showFeatured && (
+                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-2">
+                    Featured
+                    <button onClick={() => setShowFeatured(false)} className="hover:text-green-900">✕</button>
+                  </span>
+                )}
+                {showNewArrivals && (
+                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium flex items-center gap-2">
+                    New Arrivals
+                    <button onClick={() => setShowNewArrivals(false)} className="hover:text-blue-900">✕</button>
+                  </span>
+                )}
+                {showBestsellers && (
+                  <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium flex items-center gap-2">
+                    Bestsellers
+                    <button onClick={() => setShowBestsellers(false)} className="hover:text-yellow-900">✕</button>
+                  </span>
+                )}
+                <button
+                  onClick={() => {
+                    setSelectedCategory('');
+                    setSearchQuery('');
+                    setShowFeatured(false);
+                    setShowNewArrivals(false);
+                    setShowBestsellers(false);
+                  }}
+                  className="text-sm text-gray-600 hover:text-gray-900 underline ml-2"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -142,33 +210,41 @@ function ProductsPageContent() {
         <div className="flex gap-8">
           {/* Filters Sidebar */}
           <div className={`${showFilters ? 'block' : 'hidden'} md:block w-64 flex-shrink-0`}>
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
-              <h3 className="font-semibold text-gray-900 mb-4">Filters</h3>
+            <div className="bg-white rounded-xl shadow-md p-6 sticky top-24 border border-gray-100">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-bold text-gray-900 text-lg">Filters</h3>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="md:hidden text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
 
               {/* Categories */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+              <div className="mb-6 pb-6 border-b border-gray-200">
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
                   Categories
                 </label>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                <div className="space-y-2.5">
+                  <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
                     <input
                       type="radio"
                       name="category"
                       checked={selectedCategory === ''}
                       onChange={() => setSelectedCategory('')}
-                      className="w-4 h-4 text-primary border-gray-300 focus:ring-accent"
+                      className="w-4 h-4 text-accent border-gray-300 focus:ring-accent"
                     />
-                    <span className="text-sm text-gray-700">All Categories</span>
+                    <span className="text-sm text-gray-700 font-medium">All Categories</span>
                   </label>
                   {categories.map((category) => (
-                    <label key={category.category_id} className="flex items-center gap-2 cursor-pointer">
+                    <label key={category.category_id} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
                       <input
                         type="radio"
                         name="category"
                         checked={selectedCategory === String(category.category_id)}
                         onChange={() => setSelectedCategory(String(category.category_id))}
-                        className="w-4 h-4 text-primary border-gray-300 focus:ring-accent"
+                        className="w-4 h-4 text-accent border-gray-300 focus:ring-accent"
                       />
                       <span className="text-sm text-gray-700">{category.category_name}</span>
                     </label>
@@ -178,51 +254,51 @@ function ProductsPageContent() {
 
               {/* Product Types */}
               <div className="mb-6 pb-6 border-b border-gray-200">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
                   Product Types
                 </label>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                <div className="space-y-2.5">
+                  <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
                     <input
                       type="checkbox"
                       checked={showFeatured}
                       onChange={(e) => setShowFeatured(e.target.checked)}
-                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-accent"
+                      className="w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent"
                     />
-                    <span className="text-sm text-gray-700">Featured</span>
+                    <span className="text-sm text-gray-700">Featured ⭐</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
                     <input
                       type="checkbox"
                       checked={showNewArrivals}
                       onChange={(e) => setShowNewArrivals(e.target.checked)}
-                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-accent"
+                      className="w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent"
                     />
-                    <span className="text-sm text-gray-700">New Arrivals</span>
+                    <span className="text-sm text-gray-700">New Arrivals 🆕</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
                     <input
                       type="checkbox"
                       checked={showBestsellers}
                       onChange={(e) => setShowBestsellers(e.target.checked)}
-                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-accent"
+                      className="w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent"
                     />
-                    <span className="text-sm text-gray-700">Bestsellers</span>
+                    <span className="text-sm text-gray-700">Bestsellers 🔥</span>
                   </label>
                 </div>
               </div>
 
               {/* Sort By */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
                   Sort By
                 </label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent"
+                  className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent transition-all text-gray-700"
                 >
-                  <option value="newest">Newest</option>
+                  <option value="newest">Newest First</option>
                   <option value="price-low">Price: Low to High</option>
                   <option value="price-high">Price: High to Low</option>
                 </select>
@@ -238,7 +314,7 @@ function ProductsPageContent() {
                   setShowNewArrivals(false);
                   setShowBestsellers(false);
                 }}
-                className="w-full text-primary hover:text-primary-light text-sm font-medium"
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg text-sm font-semibold transition-colors"
               >
                 Clear All Filters
               </button>
