@@ -37,11 +37,28 @@ function ProductsPageContent() {
   const [showNewArrivals, setShowNewArrivals] = useState(false);
   const [showBestsellers, setShowBestsellers] = useState(false);
 
-  // Read category from URL query parameter on initial load
+  // Read filters from URL query parameters on initial load
   useEffect(() => {
     const categoryFromUrl = searchParams.get('category');
+    const searchFromUrl = searchParams.get('search');
+    const featuredFromUrl = searchParams.get('featured');
+    const newFromUrl = searchParams.get('new');
+    const bestsellerFromUrl = searchParams.get('bestseller');
+
     if (categoryFromUrl) {
       setSelectedCategory(categoryFromUrl);
+    }
+    if (searchFromUrl) {
+      setSearchQuery(searchFromUrl);
+    }
+    if (featuredFromUrl === 'true') {
+      setShowFeatured(true);
+    }
+    if (newFromUrl === 'true') {
+      setShowNewArrivals(true);
+    }
+    if (bestsellerFromUrl === 'true') {
+      setShowBestsellers(true);
     }
   }, [searchParams]);
 

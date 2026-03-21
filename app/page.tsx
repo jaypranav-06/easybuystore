@@ -94,11 +94,11 @@ export default async function HomePage() {
               </p>
 
               {/* Search Bar */}
-              <div className="pt-4">
+              <div className="mt-6">
                 <HomeSearchBar />
               </div>
 
-              <div className="flex flex-wrap gap-4 pt-4">
+              <div className="flex flex-wrap gap-4 mt-6">
                 <Link href="/products" className="btn-accent">
                   Explore Collection
                 </Link>
@@ -106,7 +106,7 @@ export default async function HomePage() {
                   Shop by Category
                 </Link>
               </div>
-              <div className="flex gap-8 pt-6 text-sm">
+              <div className="flex gap-8 mt-8 text-sm">
                 <div>
                   <div className="text-accent text-2xl font-bold">500+</div>
                   <div className="text-gray-400">Premium Products</div>
