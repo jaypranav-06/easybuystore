@@ -45,7 +45,9 @@ export default function AdminSidebar({ admin }: AdminSidebarProps) {
 
   const handleLogout = async () => {
     try {
-      await signOut({ callbackUrl: '/signin' });
+      // Use absolute URL for production compatibility
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
+      await signOut({ callbackUrl: `${baseUrl}/signin` });
     } catch (error) {
       console.error('Logout error:', error);
     }

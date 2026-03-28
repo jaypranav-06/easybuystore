@@ -127,7 +127,8 @@ export default function Navbar() {
                         <button
                           onClick={() => {
                             setUserMenuOpen(false);
-                            signOut();
+                            const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+                            signOut({ callbackUrl: `${baseUrl}/signin` });
                           }}
                           className="block w-full text-left px-4 py-2 text-text-primary hover:bg-surface hover:text-accent transition-colors"
                         >
@@ -160,7 +161,8 @@ export default function Navbar() {
                         <button
                           onClick={() => {
                             setUserMenuOpen(false);
-                            signOut();
+                            const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+                            signOut({ callbackUrl: `${baseUrl}/` });
                           }}
                           className="block w-full text-left px-4 py-2 text-text-primary hover:bg-surface hover:text-accent transition-colors"
                         >

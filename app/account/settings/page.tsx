@@ -132,10 +132,10 @@ export default function SettingsPage() {
         setSuccess('Your password has been changed successfully! Redirecting to sign in with your new password...');
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
 
-        // Sign out and redirect to home after 3 seconds
+        // Sign out and redirect to signin after 3 seconds
         setTimeout(async () => {
-          await signOut({ redirect: false });
-          router.push('/signin');
+          const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+          await signOut({ callbackUrl: `${baseUrl}/signin` });
         }, 3000);
       } else {
         setError(data.error || 'Failed to change password');
