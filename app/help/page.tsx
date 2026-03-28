@@ -89,7 +89,7 @@ export default function HelpCenterPage() {
                   <Phone className="w-6 h-6 text-primary" />
                   <div>
                     <h3 className="font-semibold text-gray-900">Call Us</h3>
-                    <p className="text-sm text-gray-600">+94 (11) 234-5678</p>
+                    <p className="text-sm text-gray-600">+94 75 907 3302</p>
                   </div>
                 </a>
               </div>

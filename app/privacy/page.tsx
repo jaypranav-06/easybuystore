@@ -145,7 +145,7 @@ export default function PrivacyPolicyPage() {
               </p>
               <div className="bg-gray-50 rounded-lg p-6">
                 <p className="text-gray-700 mb-2"><strong>Email:</strong> contact@easybuystore.com</p>
-                <p className="text-gray-700 mb-2"><strong>Phone:</strong> +94 (11) 234-5678</p>
+                <p className="text-gray-700 mb-2"><strong>Phone:</strong> +94 75 907 3302</p>
                 <p className="text-gray-700"><strong>Address:</strong> 245, 3 De Fonseka Pl, Colombo 00400, Sri Lanka</p>
               </div>
             </section>

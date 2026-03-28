@@ -80,7 +80,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Phone</h3>
-                    <p className="text-gray-600">+94 (11) 234-5678</p>
+                    <p className="text-gray-600">+94 75 907 3302</p>
                     <p className="text-gray-600">+94 (77) 123-4567</p>
                   </div>
                 </div>
@@ -245,7 +245,7 @@ export default function ContactPage() {
                 href="tel:+94112345678"
                 className="text-primary hover:text-primary-light font-semibold"
               >
-                +94 (11) 234-5678
+                +94 75 907 3302
               </a>
             </div>
 

@@ -66,7 +66,7 @@ export default function ReturnsPage() {
                 <li className="flex gap-3">
                   <span className="flex-shrink-0 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-sm font-semibold">1</span>
                   <div>
-                    <strong className="text-gray-900">Contact Us:</strong> Email us at contact@easybuystore.com or call +94 (11) 234-5678 to initiate a return.
+                    <strong className="text-gray-900">Contact Us:</strong> Email us at contact@easybuystore.com or call +94 75 907 3302 to initiate a return.
                   </div>
                 </li>
                 <li className="flex gap-3">
