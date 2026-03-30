@@ -221,7 +221,7 @@ export default async function AdminDashboard() {
                     </td>
                     <td className="py-3 px-4">
                       <Link
-                        href={`/admin/orders/${order.order_id}`}
+                        href={`/admin/orders/${order.order_number}`}
                         className="text-primary hover:text-primary-light text-sm font-semibold"
                       >
                         View

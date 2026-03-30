@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { put } from '@vercel/blob';
 import { auth } from '@/lib/auth/auth';
 
 export async function POST(request: NextRequest) {
@@ -34,23 +33,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Create unique filename
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
     const timestamp = Date.now();
     const originalName = file.name.replace(/\s/g, '-');
-    const filename = `${timestamp}-${originalName}`;
+    const filename = `products/${timestamp}-${originalName}`;
 
-    // Ensure uploads directory exists
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'products');
-    await mkdir(uploadsDir, { recursive: true });
+    // Upload to Vercel Blob
+    const blob = await put(filename, file, {
+      access: 'public',
+      addRandomSuffix: false,
+    });
 
-    // Save file
-    const filepath = path.join(uploadsDir, filename);
-    await writeFile(filepath, buffer);
+    console.log('📤 Upload successful:', blob.url);
 
     // Return public URL
-    const url = `/uploads/products/${filename}`;
-    return NextResponse.json({ success: true, url });
+    return NextResponse.json({ success: true, url: blob.url });
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json(

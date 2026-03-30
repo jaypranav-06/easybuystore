@@ -16,18 +16,18 @@ export async function POST(
     }
 
     const { orderId } = await params;
-    const orderIdNum = parseInt(orderId);
 
-    if (isNaN(orderIdNum)) {
-      return NextResponse.json({ error: 'Invalid order ID' }, { status: 400 });
-    }
+    // Support both order_number and numeric order_id
+    const isNumericId = /^\d+$/.test(orderId);
 
     const body = await request.json();
     const { carrier } = body;
 
     // Get the order with items
-    const order = await prisma.paymentOrder.findUnique({
-      where: { order_id: orderIdNum },
+    const order = await prisma.paymentOrder.findFirst({
+      where: isNumericId
+        ? { order_id: parseInt(orderId) }
+        : { order_number: orderId },
       include: {
         order_items: {
           include: {
@@ -81,7 +81,7 @@ export async function POST(
 
     // Update order with tracking information
     const updatedOrder = await prisma.paymentOrder.update({
-      where: { order_id: orderIdNum },
+      where: { order_id: order.order_id },
       data: {
         tracking_number: shipmentResponse.trackingNumber,
         carrier: shipmentResponse.carrier,
@@ -123,10 +123,20 @@ export async function PATCH(
     }
 
     const { orderId } = await params;
-    const orderIdNum = parseInt(orderId);
 
-    if (isNaN(orderIdNum)) {
-      return NextResponse.json({ error: 'Invalid order ID' }, { status: 400 });
+    // Support both order_number and numeric order_id
+    const isNumericId = /^\d+$/.test(orderId);
+
+    // First get the order to find its order_id
+    const order = await prisma.paymentOrder.findFirst({
+      where: isNumericId
+        ? { order_id: parseInt(orderId) }
+        : { order_number: orderId },
+      select: { order_id: true },
+    });
+
+    if (!order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
     const body = await request.json();
@@ -143,7 +153,7 @@ export async function PATCH(
     }
 
     const updatedOrder = await prisma.paymentOrder.update({
-      where: { order_id: orderIdNum },
+      where: { order_id: order.order_id },
       data: updateData,
     });
 

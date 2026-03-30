@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Package, User, MapPin, CreditCard, Save } from 'lucide-react';
+import { ArrowLeft, Package, User, MapPin, CreditCard, Save, Truck, CheckCircle } from 'lucide-react';
 
 interface OrderItem {
   id: number;
@@ -28,6 +28,12 @@ interface Order {
   payment_status: string;
   payment_method: string | null;
   shipping_address: string | null;
+  tracking_number: string | null;
+  carrier: string | null;
+  shipping_status: string | null;
+  shipped_at: string | null;
+  estimated_delivery: string | null;
+  delivered_at: string | null;
   user: {
     first_name: string;
     last_name: string;
@@ -37,30 +43,43 @@ interface Order {
   order_items: OrderItem[];
 }
 
+interface Carrier {
+  id: string;
+  name: string;
+  isActive: boolean;
+}
+
 export default function OrderDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const orderId = params.id as string;
+  const orderNumber = params.id as string;
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [orderStatus, setOrderStatus] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
+  const [carriers, setCarriers] = useState<Carrier[]>([]);
+  const [selectedCarrier, setSelectedCarrier] = useState('');
+  const [creatingShipment, setCreatingShipment] = useState(false);
+  const [shippingStatus, setShippingStatus] = useState('');
+  const [updatingShipping, setUpdatingShipping] = useState(false);
 
   useEffect(() => {
     fetchOrder();
-  }, [orderId]);
+    fetchCarriers();
+  }, [orderNumber]);
 
   const fetchOrder = async () => {
     try {
-      const response = await fetch(`/api/orders/${orderId}`);
+      const response = await fetch(`/api/admin/orders/${orderNumber}`);
       const data = await response.json();
 
       if (data.success) {
         setOrder(data.order);
         setOrderStatus(data.order.order_status);
         setPaymentStatus(data.order.payment_status);
+        setShippingStatus(data.order.shipping_status || 'pending');
       }
     } catch (error) {
       console.error('Error fetching order:', error);
@@ -69,10 +88,27 @@ export default function OrderDetailPage() {
     }
   };
 
+  const fetchCarriers = async () => {
+    try {
+      const response = await fetch(`/api/admin/orders/${orderNumber}/shipping`);
+      const data = await response.json();
+
+      if (data.success && data.carriers) {
+        setCarriers(data.carriers);
+        const activeCarrier = data.carriers.find((c: Carrier) => c.isActive);
+        if (activeCarrier) {
+          setSelectedCarrier(activeCarrier.id);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching carriers:', error);
+    }
+  };
+
   const handleStatusUpdate = async () => {
     setSaving(true);
     try {
-      const response = await fetch(`/api/admin/orders/${orderId}`, {
+      const response = await fetch(`/api/admin/orders/${orderNumber}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -92,6 +128,64 @@ export default function OrderDetailPage() {
       alert('Error updating order status');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleCreateShipment = async () => {
+    if (!selectedCarrier) {
+      alert('Please select a carrier');
+      return;
+    }
+
+    setCreatingShipment(true);
+    try {
+      const response = await fetch(`/api/admin/orders/${orderNumber}/shipping`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ carrier: selectedCarrier }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert('Shipment created successfully');
+        fetchOrder();
+      } else {
+        alert(data.error || 'Failed to create shipment');
+      }
+    } catch (error) {
+      console.error('Error creating shipment:', error);
+      alert('Error creating shipment');
+    } finally {
+      setCreatingShipment(false);
+    }
+  };
+
+  const handleUpdateShipping = async () => {
+    setUpdatingShipping(true);
+    try {
+      const response = await fetch(`/api/admin/orders/${orderNumber}/shipping`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          shipping_status: shippingStatus,
+          delivered_at: shippingStatus === 'delivered' ? new Date().toISOString() : undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert('Shipping status updated successfully');
+        fetchOrder();
+      } else {
+        alert(data.error || 'Failed to update shipping status');
+      }
+    } catch (error) {
+      console.error('Error updating shipping status:', error);
+      alert('Error updating shipping status');
+    } finally {
+      setUpdatingShipping(false);
     }
   };
 
@@ -300,7 +394,11 @@ export default function OrderDetailPage() {
               <div>
                 <p className="text-sm text-gray-600">Method</p>
                 <p className="font-semibold text-gray-900">
-                  {order.payment_method || 'Not specified'}
+                  {order.payment_method === 'cod'
+                    ? 'Cash on Delivery'
+                    : order.payment_method === 'paypal'
+                    ? 'PayPal'
+                    : order.payment_method || 'Not specified'}
                 </p>
               </div>
               <div>
@@ -316,6 +414,136 @@ export default function OrderDetailPage() {
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Shipping & Tracking */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Truck className="w-5 h-5" />
+              Shipping & Tracking
+            </h2>
+
+            {!order.tracking_number ? (
+              /* Create Shipment Form */
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600">Create a shipment to generate tracking information</p>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Select Carrier
+                  </label>
+                  <select
+                    value={selectedCarrier}
+                    onChange={(e) => setSelectedCarrier(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                  >
+                    {carriers.filter(c => c.isActive).map((carrier) => (
+                      <option key={carrier.id} value={carrier.id}>
+                        {carrier.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  onClick={handleCreateShipment}
+                  disabled={creatingShipment}
+                  className="w-full px-4 py-3 bg-gradient-to-r from-primary to-accent text-white rounded-lg font-semibold hover:from-primary-light hover:to-accent-light transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <Truck className="w-5 h-5" />
+                  {creatingShipment ? 'Creating...' : 'Create Shipment'}
+                </button>
+              </div>
+            ) : (
+              /* Tracking Information Display */
+              <div className="space-y-4">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-green-900 mb-1">Shipment Created</p>
+                      <p className="text-xs text-green-700">Tracking number has been generated</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-gray-600">Tracking Number</p>
+                    <p className="font-mono font-semibold text-gray-900">{order.tracking_number}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Carrier</p>
+                    <p className="font-semibold text-gray-900">{order.carrier}</p>
+                  </div>
+                  {order.shipped_at && (
+                    <div>
+                      <p className="text-sm text-gray-600">Shipped At</p>
+                      <p className="font-semibold text-gray-900">
+                        {new Date(order.shipped_at).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  )}
+                  {order.estimated_delivery && (
+                    <div>
+                      <p className="text-sm text-gray-600">Estimated Delivery</p>
+                      <p className="font-semibold text-gray-900">
+                        {new Date(order.estimated_delivery).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                  )}
+                  {order.delivered_at && (
+                    <div>
+                      <p className="text-sm text-gray-600">Delivered At</p>
+                      <p className="font-semibold text-green-700">
+                        {new Date(order.delivered_at).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-4 border-t border-gray-200">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Shipping Status
+                  </label>
+                  <select
+                    value={shippingStatus}
+                    onChange={(e) => setShippingStatus(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent mb-3"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="in_transit">In Transit</option>
+                    <option value="out_for_delivery">Out for Delivery</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="failed">Failed</option>
+                  </select>
+                  <button
+                    onClick={handleUpdateShipping}
+                    disabled={updatingShipping}
+                    className="w-full px-4 py-3 bg-gradient-to-r from-primary to-accent text-white rounded-lg font-semibold hover:from-primary-light hover:to-accent-light transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <Save className="w-5 h-5" />
+                    {updatingShipping ? 'Updating...' : 'Update Shipping Status'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

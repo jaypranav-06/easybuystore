@@ -148,7 +148,7 @@ export default async function AdminOrdersPage() {
                     </td>
                     <td className="py-4 px-6">
                       <Link
-                        href={`/admin/orders/${order.order_id}`}
+                        href={`/admin/orders/${order.order_number}`}
                         className="inline-flex items-center gap-1 text-primary hover:text-primary-light font-semibold text-sm"
                       >
                         <Eye className="w-4 h-4" />
