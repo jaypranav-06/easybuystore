@@ -77,7 +77,7 @@ export default async function HomePage() {
       {/* Hero Section - Luxurious Design */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#2C2C2C] via-[#3A3A3A] to-[#2C2C2C]">
         <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-5"></div>
-        <div className="container-custom relative">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center min-h-[600px] py-16 md:py-0">
             <div className="text-white space-y-6 animate-fade-in">
               <div className="inline-block">

@@ -214,11 +214,15 @@ export default function EditProductPage() {
         method: 'DELETE',
       });
 
+      const data = await response.json();
+
       if (response.ok) {
+        alert('Product deleted successfully');
         router.push('/admin/products');
         router.refresh();
       } else {
-        alert('Failed to delete product');
+        // Show specific error message from API
+        alert(data.error || 'Failed to delete product');
       }
     } catch (error) {
       console.error('Error deleting product:', error);

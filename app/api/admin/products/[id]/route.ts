@@ -111,16 +111,50 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    const productId = parseInt(id);
 
-    await prisma.product.delete({
-      where: { product_id: parseInt(id) },
+    // Check if product exists
+    const product = await prisma.product.findUnique({
+      where: { product_id: productId },
     });
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
+    if (!product) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
+    // Check if product is referenced in orders
+    const orderItems = await prisma.orderItem.findFirst({
+      where: { product_id: productId },
+    });
+
+    if (orderItems) {
+      return NextResponse.json(
+        { error: 'Cannot delete product that has been ordered. Consider deactivating it instead.' },
+        { status: 400 }
+      );
+    }
+
+    // Delete related records first
+    await prisma.$transaction([
+      // Delete from cart items (includes both cart and wishlist items)
+      prisma.cartItem.deleteMany({
+        where: { product_id: productId },
+      }),
+      // Delete reviews
+      prisma.review.deleteMany({
+        where: { product_id: productId },
+      }),
+      // Finally delete the product
+      prisma.product.delete({
+        where: { product_id: productId },
+      }),
+    ]);
+
+    return NextResponse.json({ success: true, message: 'Product deleted successfully' });
+  } catch (error: any) {
     console.error('Error deleting product:', error);
     return NextResponse.json(
-      { error: 'Failed to delete product' },
+      { error: error.message || 'Failed to delete product' },
       { status: 500 }
     );
   }

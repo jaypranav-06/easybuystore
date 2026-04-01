@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth/auth';
 import Link from 'next/link';
 import { User, Package, MapPin, CreditCard, Settings } from 'lucide-react';
 import prisma from '@/lib/db/prisma';
+import { formatStatus } from '@/lib/utils/format-status';
 
 async function getUserData(userId: number) {
   const user = await prisma.user.findUnique({
@@ -242,7 +243,7 @@ export default async function AccountPage() {
                               : 'bg-gray-100 text-gray-700'
                           }`}
                         >
-                          {order.order_status}
+                          {formatStatus(order.order_status)}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">

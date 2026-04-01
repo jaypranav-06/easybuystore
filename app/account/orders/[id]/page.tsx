@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Package, Truck, CheckCircle, ShoppingBag } from 'lucide-react';
 import prisma from '@/lib/db/prisma';
+import { formatStatus } from '@/lib/utils/format-status';
 
 async function getOrderDetails(orderId: number, userId: number) {
   const order = await prisma.paymentOrder.findFirst({
@@ -116,7 +117,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   : 'bg-gray-100 text-orange-700'
               }`}
             >
-              {order.order_status}
+              {formatStatus(order.order_status)}
             </span>
           </div>
         </div>
@@ -257,13 +258,104 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               </div>
             </div>
 
+            {/* Tracking Information */}
+            {order.tracking_number && (
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Truck className="w-5 h-5" />
+                  Tracking Information
+                </h2>
+                <div className="space-y-3">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <p className="font-semibold text-green-900">Package Shipped</p>
+                    </div>
+                    <p className="text-sm text-green-700">Your order is on its way!</p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Tracking Number</p>
+                    <p className="font-mono font-semibold text-gray-900 text-lg">{order.tracking_number}</p>
+                  </div>
+
+                  {order.carrier && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Carrier</p>
+                      <p className="font-semibold text-gray-900">{order.carrier}</p>
+                    </div>
+                  )}
+
+                  {order.shipping_status && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Shipping Status</p>
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                        order.shipping_status === 'delivered'
+                          ? 'bg-green-100 text-green-700'
+                          : order.shipping_status === 'out_for_delivery'
+                          ? 'bg-blue-100 text-blue-700'
+                          : order.shipping_status === 'in_transit'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : order.shipping_status === 'shipped'
+                          ? 'bg-purple-100 text-purple-700'
+                          : 'bg-gray-100 text-gray-700'
+                      }`}>
+                        {order.shipping_status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </span>
+                    </div>
+                  )}
+
+                  {order.shipped_at && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Shipped Date</p>
+                      <p className="font-semibold text-gray-900">
+                        {new Date(order.shipped_at).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                  )}
+
+                  {order.estimated_delivery && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Estimated Delivery</p>
+                      <p className="font-semibold text-primary">
+                        {new Date(order.estimated_delivery).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                  )}
+
+                  {order.delivered_at && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Delivered Date</p>
+                      <p className="font-semibold text-green-700">
+                        {new Date(order.delivered_at).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Payment Information */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Payment Information</h2>
               <div className="text-gray-600">
                 <p className="mb-2">
                   <span className="font-semibold text-gray-900">Method:</span>{' '}
-                  {order.payment_method || 'PayPal'}
+                  {order.payment_method === 'cod' ? 'Cash on Delivery' : order.payment_method === 'stripe' ? 'Stripe' : order.payment_method === 'payhere' ? 'PayHere' : order.payment_method || 'PayPal'}
                 </p>
                 <p className="mb-2">
                   <span className="font-semibold text-gray-900">Status:</span>{' '}
@@ -272,7 +364,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                       order.payment_status === 'paid' ? 'text-success' : 'text-accent'
                     } font-semibold`}
                   >
-                    {order.payment_status}
+                    {formatStatus(order.payment_status)}
                   </span>
                 </p>
                 {order.paypal_order_id && (

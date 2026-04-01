@@ -1,6 +1,7 @@
 import prisma from '@/lib/db/prisma';
 import { Package, ShoppingCart, Users, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { formatStatus } from '@/lib/utils/format-status';
 
 async function getDashboardStats() {
   const [
@@ -216,7 +217,7 @@ export default async function AdminDashboard() {
                             : 'bg-gray-100 text-orange-700'
                         }`}
                       >
-                        {order.order_status}
+                        {formatStatus(order.order_status)}
                       </span>
                     </td>
                     <td className="py-3 px-4">

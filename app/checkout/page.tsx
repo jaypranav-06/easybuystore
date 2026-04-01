@@ -17,11 +17,19 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [orderId, setOrderId] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<'paypal' | 'cod'>('cod'); // Default to COD
+  const [paymentMethod, setPaymentMethod] = useState<'paypal' | 'cod' | 'payhere' | 'stripe'>('cod'); // Default to COD
 
   // Check if PayPal is configured
   const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
   const isPayPalConfigured = paypalClientId && paypalClientId !== 'your-paypal-client-id' && paypalClientId.length > 10;
+
+  // Check if PayHere is configured
+  const payhereMerchantId = process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID;
+  const isPayHereConfigured = payhereMerchantId && payhereMerchantId.length > 5;
+
+  // Check if Stripe is configured
+  const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+  const isStripeConfigured = stripePublishableKey && stripePublishableKey.startsWith('pk_');
 
   const [shippingData, setShippingData] = useState({
     firstName: '',
@@ -137,6 +145,164 @@ export default function CheckoutPage() {
     } catch (err: any) {
       setError(err.message || 'Failed to process order');
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePayHereOrder = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      // First create the order
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: item.discount_price || item.price,
+          })),
+          total: total,
+          subtotal: subtotal,
+          shipping: shipping,
+          tax: tax,
+          shipping_name: `${shippingData.firstName} ${shippingData.lastName}`,
+          shipping_address: shippingData.address,
+          shipping_city: shippingData.city,
+          shipping_state: shippingData.state,
+          shipping_zip: shippingData.zipCode,
+          shipping_country: shippingData.country || 'Sri Lanka',
+          shipping_phone: shippingData.phone,
+          payment_method: 'payhere',
+          payment_status: 'pending',
+        }),
+      });
+
+      const orderData = await orderResponse.json();
+      if (!orderData.success) {
+        setError(orderData.error || 'Failed to create order');
+        setLoading(false);
+        return;
+      }
+
+      // Get PayHere payment data
+      const paymentResponse = await fetch('/api/payments/payhere/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: orderData.order.order_number,
+          amount: total,
+          currency: 'LKR',
+          first_name: shippingData.firstName,
+          last_name: shippingData.lastName,
+          email: shippingData.email,
+          phone: shippingData.phone,
+          address: shippingData.address,
+          city: shippingData.city,
+          country: shippingData.country || 'Sri Lanka',
+        }),
+      });
+
+      const paymentData = await paymentResponse.json();
+      if (!paymentData.success) {
+        setError(paymentData.error || 'Failed to initiate payment');
+        setLoading(false);
+        return;
+      }
+
+      // Clear cart before redirecting
+      clearCart();
+
+      // Submit form to PayHere
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://sandbox.payhere.lk/pay/checkout'; // Use 'https://www.payhere.lk/pay/checkout' for production
+
+      Object.entries(paymentData.payment).forEach(([key, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value as string;
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+    } catch (err: any) {
+      setError(err.message || 'Failed to process payment');
+      setLoading(false);
+    }
+  };
+
+  const handleStripeOrder = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      // First create the order
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: item.discount_price || item.price,
+          })),
+          total: total,
+          subtotal: subtotal,
+          shipping: shipping,
+          tax: tax,
+          shipping_name: `${shippingData.firstName} ${shippingData.lastName}`,
+          shipping_address: shippingData.address,
+          shipping_city: shippingData.city,
+          shipping_state: shippingData.state,
+          shipping_zip: shippingData.zipCode,
+          shipping_country: shippingData.country || 'Sri Lanka',
+          shipping_phone: shippingData.phone,
+          payment_method: 'stripe',
+          payment_status: 'pending',
+        }),
+      });
+
+      const orderData = await orderResponse.json();
+      if (!orderData.success) {
+        setError(orderData.error || 'Failed to create order');
+        setLoading(false);
+        return;
+      }
+
+      // Create Stripe checkout session
+      const checkoutResponse = await fetch('/api/payments/stripe/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: orderData.order.order_number,
+          amount: total,
+          currency: 'LKR',
+          customer_email: shippingData.email,
+          items: items.map(item => ({
+            name: item.product_name,
+            quantity: item.quantity,
+            unit_amount: item.discount_price || item.price,
+          })),
+        }),
+      });
+
+      const checkoutData = await checkoutResponse.json();
+      if (!checkoutData.success) {
+        setError(checkoutData.error || 'Failed to create checkout session');
+        setLoading(false);
+        return;
+      }
+
+      // Clear cart before redirecting
+      clearCart();
+
+      // Redirect to Stripe checkout
+      window.location.href = checkoutData.url;
+    } catch (err: any) {
+      setError(err.message || 'Failed to process payment');
       setLoading(false);
     }
   };
@@ -468,6 +634,52 @@ export default function CheckoutPage() {
                       </div>
                     </label>
 
+                    {/* PayHere Option (if configured) */}
+                    {isPayHereConfigured && (
+                      <label className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition ${
+                        paymentMethod === 'payhere' ? 'border-primary bg-surface' : 'border-gray-200 hover:border-gray-300'
+                      }`}>
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="payhere"
+                          checked={paymentMethod === 'payhere'}
+                          onChange={(e) => setPaymentMethod(e.target.value as 'payhere')}
+                          className="w-5 h-5 text-primary"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <CreditCard className="w-5 h-5 text-primary" />
+                            <span className="font-semibold text-gray-900">PayHere</span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">Pay with Card, eZcash, mCash, or Bank Transfer</p>
+                        </div>
+                      </label>
+                    )}
+
+                    {/* Stripe Option (if configured) */}
+                    {isStripeConfigured && (
+                      <label className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition ${
+                        paymentMethod === 'stripe' ? 'border-primary bg-surface' : 'border-gray-200 hover:border-gray-300'
+                      }`}>
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="stripe"
+                          checked={paymentMethod === 'stripe'}
+                          onChange={(e) => setPaymentMethod(e.target.value as 'stripe')}
+                          className="w-5 h-5 text-primary"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <CreditCard className="w-5 h-5 text-primary" />
+                            <span className="font-semibold text-gray-900">Stripe</span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">Pay securely with credit or debit card</p>
+                        </div>
+                      </label>
+                    )}
+
                     {/* PayPal Option (if configured) */}
                     {isPayPalConfigured && (
                       <label className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition ${
@@ -512,7 +724,55 @@ export default function CheckoutPage() {
                       </>
                     )}
                   </button>
-                ) : isPayPalConfigured ? (
+                ) : paymentMethod === 'payhere' && isPayHereConfigured ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-4 text-gray-600">
+                      <Lock className="w-5 h-5" />
+                      <span className="text-sm">Secure payment powered by PayHere</span>
+                    </div>
+                    <button
+                      onClick={handlePayHereOrder}
+                      disabled={loading}
+                      className="w-full bg-gradient-to-r from-primary to-accent text-white py-4 rounded-lg font-semibold hover:from-primary-light hover:to-accent-light transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {loading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="w-5 h-5" />
+                          Pay with PayHere
+                        </>
+                      )}
+                    </button>
+                  </>
+                ) : paymentMethod === 'stripe' && isStripeConfigured ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-4 text-gray-600">
+                      <Lock className="w-5 h-5" />
+                      <span className="text-sm">Secure payment powered by Stripe</span>
+                    </div>
+                    <button
+                      onClick={handleStripeOrder}
+                      disabled={loading}
+                      className="w-full bg-gradient-to-r from-primary to-accent text-white py-4 rounded-lg font-semibold hover:from-primary-light hover:to-accent-light transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {loading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="w-5 h-5" />
+                          Pay with Stripe
+                        </>
+                      )}
+                    </button>
+                  </>
+                ) : paymentMethod === 'paypal' && isPayPalConfigured ? (
                   <>
                     <div className="flex items-center gap-2 mb-4 text-gray-600">
                       <Lock className="w-5 h-5" />

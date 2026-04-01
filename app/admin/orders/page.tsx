@@ -1,6 +1,7 @@
 import prisma from '@/lib/db/prisma';
 import Link from 'next/link';
 import { Package, Eye } from 'lucide-react';
+import { formatStatus } from '@/lib/utils/format-status';
 
 async function getOrders() {
   const orders = await prisma.paymentOrder.findMany({
@@ -128,7 +129,7 @@ export default async function AdminOrdersPage() {
                             : 'bg-gray-100 text-orange-700'
                         }`}
                       >
-                        {order.payment_status}
+                        {formatStatus(order.payment_status)}
                       </span>
                     </td>
                     <td className="py-4 px-6">
@@ -143,7 +144,7 @@ export default async function AdminOrdersPage() {
                             : 'bg-gray-100 text-orange-700'
                         }`}
                       >
-                        {order.order_status}
+                        {formatStatus(order.order_status)}
                       </span>
                     </td>
                     <td className="py-4 px-6">

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Package, User, MapPin, CreditCard, Save, Truck, CheckCircle } from 'lucide-react';
+import { formatStatus } from '@/lib/utils/format-status';
 
 interface OrderItem {
   id: number;
@@ -410,7 +411,7 @@ export default function OrderDetailPage() {
                       : 'bg-gray-100 text-orange-700'
                   }`}
                 >
-                  {order.payment_status}
+                  {formatStatus(order.payment_status)}
                 </span>
               </div>
             </div>
