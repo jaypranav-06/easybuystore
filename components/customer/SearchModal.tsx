@@ -116,29 +116,40 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative min-h-screen flex items-start justify-center p-4 pt-20">
-        <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl">
+      <div className="relative min-h-screen flex items-start justify-center p-4 pt-16 sm:pt-24">
+        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
           {/* Search Input */}
-          <form onSubmit={handleSearchSubmit} className="p-4 border-b">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <form onSubmit={handleSearchSubmit} className="p-6 bg-gradient-to-r from-gray-50 to-white">
+            <div className="relative group">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors w-5 h-5" />
               <input
                 ref={inputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for products..."
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Search products..."
+                className="w-full pl-12 pr-14 py-4 bg-white border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-gray-900 placeholder:text-gray-400 shadow-sm"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-14 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  title="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
               <button
                 type="button"
                 onClick={onClose}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg p-1 transition-all"
+                title="Close"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -146,86 +157,94 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           </form>
 
           {/* Results */}
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-[28rem] overflow-y-auto">
             {loading ? (
-              <div className="p-8 text-center">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                <p className="mt-2 text-gray-600">Searching...</p>
+              <div className="p-12 text-center">
+                <div className="inline-block animate-spin rounded-full h-10 w-10 border-3 border-primary border-t-transparent"></div>
+                <p className="mt-3 text-gray-500 font-medium">Searching...</p>
               </div>
             ) : searchQuery.trim().length >= 2 ? (
               results.length > 0 ? (
-                <div className="p-2">
-                  {results.map((product) => (
-                    <Link
-                      key={product.product_id}
-                      href={`/products/${product.product_id}`}
-                      onClick={() => {
-                        saveRecentSearch(searchQuery);
-                        onClose();
-                      }}
-                      className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition"
-                    >
-                      <div className="relative w-16 h-16 flex-shrink-0 bg-gray-100 rounded">
-                        {product.image_url && (
-                          <Image
-                            src={product.image_url}
-                            alt={product.product_name}
-                            fill
-                            className="object-cover rounded"
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-gray-900 truncate">
-                          {product.product_name}
-                        </h4>
-                        <p className="text-sm text-gray-500">{product.category?.category_name}</p>
-                        <p className="text-sm font-semibold text-primary mt-1">
-                          Rs {Number(product.discount_price || product.price).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
+                <div className="p-3">
+                  <div className="space-y-1">
+                    {results.map((product) => (
+                      <Link
+                        key={product.product_id}
+                        href={`/products/${product.product_id}`}
+                        onClick={() => {
+                          saveRecentSearch(searchQuery);
+                          onClose();
+                        }}
+                        className="flex items-center gap-4 p-3 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100/50 rounded-xl transition-all group"
+                      >
+                        <div className="relative w-16 h-16 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden group-hover:shadow-md transition-shadow">
+                          {product.image_url && (
+                            <Image
+                              src={product.image_url}
+                              alt={product.product_name}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform"
+                            />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900 truncate group-hover:text-primary transition-colors">
+                            {product.product_name}
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-0.5">{product.category?.category_name}</p>
+                          <p className="text-sm font-bold text-primary mt-1">
+                            Rs {Number(product.discount_price || product.price).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                        <Search className="w-4 h-4 text-gray-300 group-hover:text-primary transition-colors" />
+                      </Link>
+                    ))}
+                  </div>
                   <Link
                     href={`/products?search=${encodeURIComponent(searchQuery)}`}
                     onClick={() => {
                       saveRecentSearch(searchQuery);
                       onClose();
                     }}
-                    className="block p-3 text-center text-primary hover:bg-gray-50 rounded-lg font-medium mt-2"
+                    className="block p-4 text-center text-primary hover:bg-primary hover:text-white rounded-xl font-semibold mt-3 transition-all border-2 border-primary/20 hover:border-primary"
                   >
                     View all results for "{searchQuery}"
                   </Link>
                 </div>
               ) : (
-                <div className="p-8 text-center text-gray-500">
-                  No products found for "{searchQuery}"
+                <div className="p-12 text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Search className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 font-medium">No products found</p>
+                  <p className="text-sm text-gray-400 mt-1">Try searching with different keywords</p>
                 </div>
               )
             ) : (
               // Recent Searches
               recentSearches.length > 0 && (
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4" />
+                <div className="p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-primary" />
                       Recent Searches
                     </h3>
                     <button
                       onClick={clearRecentSearches}
-                      className="text-xs text-gray-500 hover:text-gray-700"
+                      className="text-xs text-gray-500 hover:text-primary font-medium transition-colors"
                     >
-                      Clear
+                      Clear all
                     </button>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     {recentSearches.map((query, index) => (
                       <button
                         key={index}
                         onClick={() => handleRecentSearchClick(query)}
-                        className="block w-full text-left px-3 py-2 hover:bg-gray-50 rounded text-gray-700 text-sm"
+                        className="flex items-center justify-between w-full text-left px-4 py-2.5 hover:bg-gray-50 rounded-lg text-gray-700 transition-all group"
                       >
-                        {query}
+                        <span className="text-sm font-medium group-hover:text-primary transition-colors">{query}</span>
+                        <Search className="w-3.5 h-3.5 text-gray-300 group-hover:text-primary transition-colors" />
                       </button>
                     ))}
                   </div>

@@ -349,11 +349,10 @@ export default function OrderDetailPage() {
                   onChange={(e) => setOrderStatus(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
                 >
-                  <option value="pending">Pending</option>
-                  <option value="processing">Processing</option>
+                  <option value="pending">Payment Pending</option>
+                  <option value="processing">Paid - Preparing for Delivery</option>
                   <option value="shipped">Shipped</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="completed">Completed</option>
+                  <option value="completed">Delivered</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
@@ -367,9 +366,9 @@ export default function OrderDetailPage() {
                   onChange={(e) => setPaymentStatus(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
                 >
-                  <option value="pending">Pending</option>
+                  <option value="pending">Payment Pending</option>
                   <option value="paid">Paid</option>
-                  <option value="failed">Failed</option>
+                  <option value="failed">Payment Failed</option>
                   <option value="refunded">Refunded</option>
                 </select>
               </div>
