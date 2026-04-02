@@ -117,21 +117,28 @@ export default async function OrdersPage() {
                       </div>
                       <div className="flex flex-col items-center">
                         <p className="text-xs text-gray-600 mb-1">Status</p>
-                        <span
-                          className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-semibold ${
-                            order.order_status === 'completed'
-                              ? 'bg-green-100 text-green-700'
-                              : order.order_status === 'shipped'
-                              ? 'bg-gray-100 text-primary'
-                              : order.order_status === 'processing'
-                              ? 'bg-yellow-100 text-yellow-700'
-                              : order.order_status === 'pending'
-                              ? 'bg-gray-100 text-orange-700'
-                              : 'bg-gray-100 text-gray-700'
-                          }`}
-                        >
-                          {formatStatus(order.order_status)}
-                        </span>
+                        <div className="flex flex-col gap-1 items-center">
+                          <span
+                            className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-semibold ${
+                              order.order_status === 'completed'
+                                ? 'bg-green-100 text-green-700'
+                                : order.order_status === 'shipped'
+                                ? 'bg-blue-100 text-blue-700'
+                                : order.order_status === 'processing'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : order.order_status === 'pending'
+                                ? 'bg-gray-100 text-orange-700'
+                                : 'bg-gray-100 text-gray-700'
+                            }`}
+                          >
+                            {formatStatus(order.order_status)}
+                          </span>
+                          {order.payment_status === 'paid' && (
+                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-600 border border-green-200">
+                              ✓ Paid
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -62,23 +62,36 @@ function StripeSuccessContent() {
         <div className="bg-white rounded-lg shadow-sm p-8 text-center">
           <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
-          <p className="text-gray-600 mb-6">
-            Thank you for your purchase. Your order has been successfully placed.
+          <p className="text-gray-600 mb-2">
+            Thank you for your purchase. Your payment has been confirmed.
+          </p>
+          <p className="text-sm text-green-600 font-medium mb-6">
+            ✓ Payment processed via Stripe
           </p>
 
           {orderId && (
-            <div className="bg-surface border border-primary rounded-lg p-4 mb-6">
-              <p className="text-sm text-gray-600 mb-1">Order Number</p>
-              <p className="text-lg font-bold text-gray-900">{orderId}</p>
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6 mb-6">
+              <p className="text-sm text-gray-600 mb-2">Order Number</p>
+              <p className="text-2xl font-bold text-gray-900 mb-3">{orderId}</p>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-green-300">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-semibold text-green-700">Paid - Preparing for Delivery</span>
+              </div>
             </div>
           )}
 
           <div className="space-y-3 mb-8">
+            <div className="flex items-center justify-center gap-2 text-gray-700">
+              <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="font-medium">Payment confirmed and verified</p>
+            </div>
             <p className="text-gray-600">
               A confirmation email has been sent to your email address.
             </p>
             <p className="text-gray-600">
-              You can track your order status in your account dashboard.
+              Your order is now being prepared for delivery. Track your order status in your account dashboard.
             </p>
           </div>
 
