@@ -296,10 +296,7 @@ export default function CheckoutPage() {
         return;
       }
 
-      // Clear cart before redirecting
-      clearCart();
-
-      // Redirect to Stripe checkout
+      // Redirect to Stripe checkout immediately (cart will be cleared on success page)
       window.location.href = checkoutData.url;
     } catch (err: any) {
       setError(err.message || 'Failed to process payment');

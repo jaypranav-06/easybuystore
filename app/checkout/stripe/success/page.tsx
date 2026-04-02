@@ -3,10 +3,12 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CheckCircle, Loader } from 'lucide-react';
+import { useCartStore } from '@/lib/stores/cart-store';
 
 function StripeSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { clearCart } = useCartStore();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
 
   const orderId = searchParams.get('order_id');
@@ -14,6 +16,9 @@ function StripeSuccessContent() {
 
   useEffect(() => {
     if (orderId && sessionId) {
+      // Clear the cart since payment was successful
+      clearCart();
+
       // Give the webhook a moment to process
       setTimeout(() => {
         setStatus('success');
@@ -21,7 +26,7 @@ function StripeSuccessContent() {
     } else {
       setStatus('error');
     }
-  }, [orderId, sessionId]);
+  }, [orderId, sessionId, clearCart]);
 
   if (status === 'loading') {
     return (
