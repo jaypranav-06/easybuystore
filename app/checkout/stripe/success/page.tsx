@@ -15,17 +15,41 @@ function StripeSuccessContent() {
   const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
-    if (orderId && sessionId) {
-      // Clear the cart since payment was successful
-      clearCart();
+    const verifyAndUpdateOrder = async () => {
+      if (orderId && sessionId) {
+        // Clear the cart since payment was successful
+        clearCart();
 
-      // Give the webhook a moment to process
-      setTimeout(() => {
-        setStatus('success');
-      }, 2000);
-    } else {
-      setStatus('error');
-    }
+        try {
+          // Update the order status immediately (don't wait for webhook)
+          const response = await fetch('/api/payments/stripe/verify-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              session_id: sessionId,
+              order_id: orderId,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            setStatus('success');
+          } else {
+            // Still show success page even if verification fails (webhook will handle it)
+            setStatus('success');
+          }
+        } catch (error) {
+          console.error('Error verifying payment:', error);
+          // Still show success page (webhook will handle the update)
+          setStatus('success');
+        }
+      } else {
+        setStatus('error');
+      }
+    };
+
+    verifyAndUpdateOrder();
   }, [orderId, sessionId, clearCart]);
 
   if (status === 'loading') {
