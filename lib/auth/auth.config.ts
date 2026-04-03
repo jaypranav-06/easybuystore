@@ -65,6 +65,7 @@ export const authConfig = {
       return session;
     },
 
+
     /**
      * AUTHORIZED CALLBACK (Route Protection)
      *
@@ -97,10 +98,10 @@ export const authConfig = {
       /**
        * ADMIN PANEL PROTECTION
        *
-       * Rule: Only users with 'admin' role can access /admin pages
+       * Rule: Only users with 'admin', 'staff', or 'super_admin' role can access /admin pages
        */
       if (isOnAdminPanel) {
-        if (isLoggedIn && userRole === 'admin') {
+        if (isLoggedIn && (userRole === 'admin' || userRole === 'staff' || userRole === 'super_admin')) {
           console.log('Admin access granted');
           return true; // Allow access
         }

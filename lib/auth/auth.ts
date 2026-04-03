@@ -124,12 +124,12 @@ const config = {
           if (passwordsMatch) {
             console.log('Admin login successful!');
 
-            // Return admin user object with 'admin' role
+            // Return admin user object with their role from database
             return {
               id: admin.admin_id.toString(),
               email: admin.email,
               name: admin.username,
-              role: 'admin', // Important: This determines access to admin panel
+              role: admin.role, // Use role from database (admin or staff)
             };
           }
         }

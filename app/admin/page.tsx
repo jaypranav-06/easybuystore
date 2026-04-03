@@ -1,7 +1,8 @@
 import prisma from '@/lib/db/prisma';
-import { Package, ShoppingCart, Users, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
+import { Package, ShoppingCart, Users, TrendingUp, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { formatStatus } from '@/lib/utils/format-status';
+import { LkrIcon } from '@/components/icons/LkrIcon';
 
 async function getDashboardStats() {
   const [
@@ -64,7 +65,7 @@ export default async function AdminDashboard() {
     {
       title: 'Total Revenue',
       value: `Rs ${Number(stats.totalRevenue).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      icon: DollarSign,
+      icon: LkrIcon,
       color: 'bg-green-500',
       bgColor: 'bg-green-50',
       textColor: 'text-success',

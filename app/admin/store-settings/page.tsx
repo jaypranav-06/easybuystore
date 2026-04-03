@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Store, Mail, Phone, MapPin, DollarSign, Truck } from 'lucide-react';
+import { ArrowLeft, Save, Store, Mail, Phone, MapPin, Truck } from 'lucide-react';
 import Link from 'next/link';
+import { LkrIcon } from '@/components/icons/LkrIcon';
 
 interface StoreSettings {
   store_name: string;
@@ -192,7 +193,7 @@ export default function StoreSettingsPage() {
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-success" />
+              <LkrIcon className="w-5 h-5 text-success" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">Pricing & Tax</h2>
