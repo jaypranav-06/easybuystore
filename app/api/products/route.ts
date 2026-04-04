@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
     /**
      * ADD SEARCH FILTER
      *
-     * Search in multiple fields using OR logic.
+     * Search in multiple fields using OR logic with optimized matching.
      * If search term is "shoes", find products where:
      * - Product name contains "shoes" OR
      * - Description contains "shoes" OR
@@ -101,14 +101,32 @@ export async function GET(request: NextRequest) {
      * - Category name contains "shoes"
      *
      * mode: 'insensitive' makes search case-insensitive (Shoes = shoes = SHOES)
+     *
+     * For multi-word searches, we split and search each word individually
+     * to improve match accuracy (e.g., "red shoes" finds products with both words)
      */
     if (search) {
-      where.OR = [
-        { product_name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { keywords: { contains: search, mode: 'insensitive' } },
-        { category: { category_name: { contains: search, mode: 'insensitive' } } },
-      ];
+      const searchTerms = search.trim().toLowerCase().split(/\s+/);
+
+      // For single word searches, use simple contains
+      if (searchTerms.length === 1) {
+        where.OR = [
+          { product_name: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
+          { keywords: { contains: search, mode: 'insensitive' } },
+          { category: { category_name: { contains: search, mode: 'insensitive' } } },
+        ];
+      } else {
+        // For multi-word searches, each term must match at least one field
+        where.AND = searchTerms.map(term => ({
+          OR: [
+            { product_name: { contains: term, mode: 'insensitive' } },
+            { description: { contains: term, mode: 'insensitive' } },
+            { keywords: { contains: term, mode: 'insensitive' } },
+            { category: { category_name: { contains: term, mode: 'insensitive' } } },
+          ]
+        }));
+      }
     }
 
     /**
@@ -157,10 +175,16 @@ export async function GET(request: NextRequest) {
     ]);
 
     /**
-     * CALCULATE AVERAGE RATINGS
+     * CALCULATE AVERAGE RATINGS AND SEARCH RELEVANCE
      *
      * For each product, calculate its average customer rating.
      * Example: If product has ratings [5, 4, 5], average = 4.67
+     *
+     * For search queries, also calculate relevance score to rank results better:
+     * - Exact matches in product name: highest priority
+     * - Keyword matches: high priority
+     * - Category matches: medium priority
+     * - Description matches: lower priority
      */
     const productsWithRating = products.map((product) => {
       // Sum all ratings
@@ -169,27 +193,83 @@ export async function GET(request: NextRequest) {
       // Calculate average (total / count)
       const avgRating = product.reviews.length > 0 ? totalRating / product.reviews.length : 0;
 
+      // Calculate search relevance score if there's a search query
+      let relevanceScore = 0;
+      if (search) {
+        const searchLower = search.toLowerCase();
+        const productName = (product.product_name || '').toLowerCase();
+        const keywords = (product.keywords || '').toLowerCase();
+        const description = (product.description || '').toLowerCase();
+        const categoryName = (product.category?.category_name || '').toLowerCase();
+
+        // Exact product name match (highest priority)
+        if (productName === searchLower) {
+          relevanceScore += 100;
+        }
+        // Product name starts with search (very high priority)
+        else if (productName.startsWith(searchLower)) {
+          relevanceScore += 80;
+        }
+        // Product name contains search (high priority)
+        else if (productName.includes(searchLower)) {
+          relevanceScore += 60;
+        }
+
+        // Keyword exact match (high priority)
+        const keywordArray = keywords.split(',').map(k => k.trim());
+        if (keywordArray.some(k => k === searchLower)) {
+          relevanceScore += 70;
+        }
+        // Keyword partial match
+        else if (keywords.includes(searchLower)) {
+          relevanceScore += 50;
+        }
+
+        // Category match (medium priority)
+        if (categoryName === searchLower) {
+          relevanceScore += 40;
+        } else if (categoryName.includes(searchLower)) {
+          relevanceScore += 30;
+        }
+
+        // Description match (lower priority)
+        if (description.includes(searchLower)) {
+          relevanceScore += 20;
+        }
+
+        // Boost for featured/bestseller products
+        if (product.is_featured) relevanceScore += 5;
+        if (product.is_bestseller) relevanceScore += 5;
+        if (product.is_new) relevanceScore += 3;
+      }
+
       return {
         ...product,
         average_rating: avgRating, // Add calculated average
         review_count: product.reviews.length, // Add review count
+        relevance_score: relevanceScore, // Add search relevance score
         reviews: undefined, // Remove reviews array (we don't need it in response)
       };
     });
+
+    // Sort by relevance if searching, otherwise keep default order
+    const sortedProducts = search
+      ? productsWithRating.sort((a, b) => b.relevance_score - a.relevance_score)
+      : productsWithRating;
 
     /**
      * RETURN RESPONSE
      *
      * Send JSON response with:
      * - success: true/false
-     * - products: Array of products
+     * - products: Array of products (sorted by relevance if searching)
      * - total: Total number of products (for pagination)
      * - page: Current page number
      * - limit: Items per page
      */
     return NextResponse.json({
       success: true,
-      products: productsWithRating,
+      products: sortedProducts,
       total,
       page: page ? parseInt(page) : 1,
       limit: take || total,

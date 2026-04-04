@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Save, Upload, Trash2, X, Image as ImageIcon } from 'lucide-react';
+import TagInput from '@/components/admin/TagInput';
 
 interface Category {
   category_id: number;
@@ -21,6 +22,7 @@ interface Product {
   stock_quantity: number;
   category_id: number;
   image_url: string | null;
+  available_sizes: string[];
   is_active: boolean;
   is_featured: boolean;
 }
@@ -40,15 +42,27 @@ export default function EditProductPage() {
   const [formData, setFormData] = useState({
     product_name: '',
     description: '',
-    keywords: '',
+    keywords: [] as string[],
     price: '',
     discount_price: '',
     stock_quantity: '',
     category_id: '',
     image_url: '',
+    available_sizes: [] as string[],
     is_active: true,
     is_featured: false,
   });
+
+  const AVAILABLE_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '2XL', '3XL'];
+
+  const toggleSize = (size: string) => {
+    setFormData(prev => ({
+      ...prev,
+      available_sizes: prev.available_sizes.includes(size)
+        ? prev.available_sizes.filter(s => s !== size)
+        : [...prev.available_sizes, size]
+    }));
+  };
 
   useEffect(() => {
     fetchProduct();
@@ -65,12 +79,13 @@ export default function EditProductPage() {
         setFormData({
           product_name: product.product_name,
           description: product.description || '',
-          keywords: product.keywords || '',
+          keywords: product.keywords ? product.keywords.split(',').map(k => k.trim()).filter(k => k) : [],
           price: product.price.toString(),
           discount_price: product.discount_price?.toString() || '',
           stock_quantity: product.stock_quantity.toString(),
           category_id: product.category_id.toString(),
           image_url: product.image_url || '',
+          available_sizes: product.available_sizes || [],
           is_active: product.is_active,
           is_featured: product.is_featured,
         });
@@ -177,6 +192,7 @@ export default function EditProductPage() {
       const productData = {
         ...formData,
         image_url: imageUrl,
+        keywords: formData.keywords.join(', '), // Convert array to comma-separated string
       };
 
       const response = await fetch(`/api/admin/products/${productId}`, {
@@ -304,16 +320,11 @@ export default function EditProductPage() {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Keywords / Search Tags
             </label>
-            <input
-              type="text"
-              value={formData.keywords || ''}
-              onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
-              placeholder="e.g., casual, cotton, summer, shirt, men, fashion"
+            <TagInput
+              tags={formData.keywords}
+              onChange={(tags) => setFormData({ ...formData, keywords: tags })}
+              placeholder="Type a keyword and press Enter (e.g., casual, cotton, summer)"
             />
-            <p className="text-xs text-gray-500 mt-2">
-              Add keywords to help customers find this product. Separate with commas. Include synonyms, styles, materials, occasions, etc.
-            </p>
           </div>
 
           {/* Price */}
@@ -385,6 +396,32 @@ export default function EditProductPage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
               placeholder="0"
             />
+          </div>
+
+          {/* Available Sizes */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Available Sizes
+            </label>
+            <div className="flex flex-wrap gap-3">
+              {AVAILABLE_SIZES.map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => toggleSize(size)}
+                  className={`px-4 py-2 rounded-lg border-2 font-semibold transition ${
+                    formData.available_sizes.includes(size)
+                      ? 'border-primary bg-primary text-white'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-primary hover:bg-gray-50'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Select all sizes available for this product. Customers will be able to choose from these options.
+            </p>
           </div>
 
           {/* Image Upload */}

@@ -51,11 +51,13 @@ export async function PUT(
     const {
       product_name,
       description,
+      keywords,
       price,
       discount_price,
       stock_quantity,
       category_id,
       image_url,
+      available_sizes,
       is_active,
       is_featured,
     } = body;
@@ -67,6 +69,7 @@ export async function PUT(
     const updateData: any = {
       product_name,
       description,
+      keywords,
       is_active,
       is_featured,
     };
@@ -81,6 +84,7 @@ export async function PUT(
 
     if (category_id) updateData.category_id = parseInt(category_id);
     if (image_url !== undefined) updateData.image_url = image_url;
+    if (available_sizes !== undefined) updateData.available_sizes = available_sizes;
 
     console.log('Update product - Final updateData:', updateData);
 

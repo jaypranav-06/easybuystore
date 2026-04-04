@@ -64,11 +64,11 @@ function ProductsPageContent() {
     }
   }, [searchParams]);
 
-  // Debounce search query
+  // Debounce search query - reduced to 300ms for faster response
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 500); // Wait 500ms after user stops typing
+    }, 300); // Wait 300ms after user stops typing (faster than before)
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -158,14 +158,23 @@ function ProductsPageContent() {
             {/* Enhanced Search Bar */}
             <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-1 relative group">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-accent transition-colors w-5 h-5" />
+                <Search className={`absolute left-4 top-1/2 transform -translate-y-1/2 transition-colors w-5 h-5 ${
+                  loading ? 'text-accent animate-pulse' : 'text-gray-400 group-hover:text-accent'
+                }`} />
                 <input
                   type="text"
-                  placeholder="Search by name, category, description..."
+                  placeholder="Search by name, category, keywords..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-accent/20 focus:border-accent transition-all duration-300 text-gray-900 placeholder:text-gray-500 shadow-sm hover:shadow-md"
+                  className="w-full pl-12 pr-24 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-accent/20 focus:border-accent transition-all duration-300 text-gray-900 placeholder:text-gray-500 shadow-sm hover:shadow-md"
                 />
+                {/* Loading Indicator */}
+                {loading && searchQuery && (
+                  <div className="absolute right-20 top-1/2 transform -translate-y-1/2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-accent border-t-transparent"></div>
+                  </div>
+                )}
+                {/* Clear Button */}
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
@@ -371,18 +380,57 @@ function ProductsPageContent() {
             {loading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                <p className="mt-4 text-gray-600">Loading products...</p>
+                <p className="mt-4 text-gray-600 font-medium">
+                  {searchQuery ? `Searching for "${searchQuery}"...` : 'Loading products...'}
+                </p>
+                <p className="mt-2 text-sm text-gray-500">This will only take a moment</p>
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-12">
                 <ShoppingBag className="mx-auto w-16 h-16 text-gray-400 mb-4" />
-                <p className="text-gray-600">No products found</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+                {searchQuery && (
+                  <div className="max-w-md mx-auto">
+                    <p className="text-gray-600 mb-4">
+                      No results for "<span className="font-semibold">{searchQuery}</span>"
+                    </p>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
+                      <p className="text-sm text-gray-700 font-semibold mb-2">Search Tips:</p>
+                      <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
+                        <li>Try different keywords</li>
+                        <li>Check your spelling</li>
+                        <li>Use more general terms</li>
+                        <li>Try searching by category or product type</li>
+                      </ul>
+                    </div>
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="mt-4 px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary-light transition"
+                    >
+                      Clear Search
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {products.map((product) => (
-                  <ProductCard key={product.product_id} product={product} />
-                ))}
+              <div>
+                {/* Search Results Summary */}
+                {searchQuery && (
+                  <div className="mb-4 p-3 bg-accent/10 border border-accent/20 rounded-lg">
+                    <p className="text-sm text-gray-700">
+                      Found <span className="font-bold text-accent">{products.length}</span> result{products.length !== 1 ? 's' : ''} for "<span className="font-semibold">{searchQuery}</span>"
+                      {selectedCategory && categories.length > 0 && (
+                        <span> in <span className="font-semibold">{categories.find(c => String(c.category_id) === selectedCategory)?.category_name}</span></span>
+                      )}
+                    </p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {products.map((product) => (
+                    <ProductCard key={product.product_id} product={product} />
+                  ))}
+                </div>
               </div>
             )}
           </div>

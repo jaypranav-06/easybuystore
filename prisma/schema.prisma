@@ -21,15 +21,16 @@ model AdminUser {
 }
 
 model CartItem {
-  id         Int      @id @default(autoincrement())
-  user_id    Int
-  product_id Int
-  quantity   Int
-  item_type  String   @default("cart")
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  product    Product  @relation(fields: [product_id], references: [product_id])
-  user       User     @relation(fields: [user_id], references: [user_id])
+  id            Int      @id @default(autoincrement())
+  user_id       Int
+  product_id    Int
+  quantity      Int
+  selected_size String?
+  item_type     String   @default("cart")
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  product       Product  @relation(fields: [product_id], references: [product_id])
+  user          User     @relation(fields: [user_id], references: [user_id])
 
   @@map("cart_items")
 }
@@ -71,6 +72,7 @@ model OrderItem {
   quantity      Int
   price         Float
   subtotal      Float
+  selected_size String?
   created_at    DateTime     @default(now())
   payment_order PaymentOrder @relation(fields: [order_id], references: [order_id])
   product       Product      @relation(fields: [product_id], references: [product_id])
@@ -114,25 +116,26 @@ model PaymentOrder {
 }
 
 model Product {
-  product_id     Int        @id @default(autoincrement())
-  product_name   String
-  description    String?
-  price          Float
-  discount_price Float?
-  category_id    Int?
-  image_url      String?
-  stock_quantity Int        @default(0)
-  is_active      Boolean    @default(true)
-  is_featured    Boolean    @default(false)
-  is_new         Boolean    @default(false)
-  is_bestseller  Boolean    @default(false)
-  keywords       String?
-  created_at     DateTime   @default(now())
-  updated_at     DateTime   @updatedAt
-  cart_items     CartItem[]
-  order_items    OrderItem[]
-  category       Category?  @relation(fields: [category_id], references: [category_id])
-  reviews        Review[]
+  product_id      Int        @id @default(autoincrement())
+  product_name    String
+  description     String?
+  price           Float
+  discount_price  Float?
+  category_id     Int?
+  image_url       String?
+  stock_quantity  Int        @default(0)
+  available_sizes String[]   @default([])
+  is_active       Boolean    @default(true)
+  is_featured     Boolean    @default(false)
+  is_new          Boolean    @default(false)
+  is_bestseller   Boolean    @default(false)
+  keywords        String?
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+  cart_items      CartItem[]
+  order_items     OrderItem[]
+  category        Category?  @relation(fields: [category_id], references: [category_id])
+  reviews         Review[]
 
   @@map("products")
 }

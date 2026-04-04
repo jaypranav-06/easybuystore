@@ -45,11 +45,13 @@ export async function POST(request: NextRequest) {
     const {
       product_name,
       description,
+      keywords,
       price,
       discount_price,
       stock_quantity,
       category_id,
       image_url,
+      available_sizes,
       is_active,
       is_featured,
     } = body;
@@ -66,11 +68,13 @@ export async function POST(request: NextRequest) {
       data: {
         product_name,
         description,
+        keywords,
         price: parseFloat(price),
         discount_price: discount_price ? parseFloat(discount_price) : null,
         stock_quantity: parseInt(stock_quantity) || 0,
         category_id: parseInt(category_id),
         image_url,
+        available_sizes: available_sizes || [],
         is_active: is_active !== undefined ? is_active : true,
         is_featured: is_featured !== undefined ? is_featured : false,
         updated_at: new Date(),
