@@ -19,6 +19,7 @@ import { authConfig } from './auth.config';
 import { z } from 'zod'; // Input validation library
 import bcrypt from 'bcryptjs'; // Password hashing library
 import prisma from '@/lib/db/prisma'; // Database connection
+import { sendWelcomeEmail } from '@/lib/email/sendgrid'; // Email service
 import type { JWT } from 'next-auth/jwt';
 import type { Session, User } from 'next-auth';
 
@@ -237,6 +238,15 @@ const config = {
               },
             });
             console.log('New user created:', dbUser.user_id);
+
+            // Send welcome email to new user
+            try {
+              await sendWelcomeEmail(user.email, user.name || 'User');
+              console.log('✅ Welcome email sent to:', user.email);
+            } catch (emailError) {
+              console.error('❌ Failed to send welcome email:', emailError);
+              // Don't fail the sign-in if email fails
+            }
           } else {
             console.log('Existing user found:', dbUser.user_id);
           }
