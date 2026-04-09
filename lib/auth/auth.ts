@@ -242,9 +242,9 @@ const config = {
             // Send welcome email to new user
             try {
               await sendWelcomeEmail(user.email, user.name || 'User');
-              console.log('✅ Welcome email sent to:', user.email);
+              console.log('SUCCESS: Welcome email sent to:', user.email);
             } catch (emailError) {
-              console.error('❌ Failed to send welcome email:', emailError);
+              console.error('ERROR: Failed to send welcome email:', emailError);
               // Don't fail the sign-in if email fails
             }
           } else {

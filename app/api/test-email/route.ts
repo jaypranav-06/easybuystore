@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     if (result) {
       return NextResponse.json({
         success: true,
-        message: `✅ ${emailType} sent successfully to ${email}!`,
+        message: `SUCCESS: ${emailType} sent successfully to ${email}!`,
         note: 'Check your email inbox (and spam folder)',
       });
     } else {
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
       );
     }
   } catch (error: any) {
-    console.error('❌ Test email error:', error);
+    console.error('ERROR: Test email error:', error);
 
     return NextResponse.json(
       {

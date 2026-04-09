@@ -58,9 +58,9 @@ export async function POST(request: NextRequest) {
     try {
       const fullName = `${validatedData.firstName} ${validatedData.lastName}`;
       await sendWelcomeEmail(validatedData.email, fullName);
-      console.log('✅ Welcome email sent to:', validatedData.email);
+      console.log('SUCCESS: Welcome email sent to:', validatedData.email);
     } catch (emailError) {
-      console.error('❌ Failed to send welcome email:', emailError);
+      console.error('ERROR: Failed to send welcome email:', emailError);
       // Don't fail registration if email fails
     }
 

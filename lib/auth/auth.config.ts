@@ -87,7 +87,7 @@ export const authConfig = {
       const userRole = auth?.user?.role;
 
       // Log authentication check for debugging
-      console.log('🔒 Authorization check:', {
+      console.log('Authorization check:', {
         path: nextUrl.pathname,
         isLoggedIn,
         userRole,
