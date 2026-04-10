@@ -68,8 +68,12 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleDelete = async (categoryId: number) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
+  const handleDelete = async (categoryId: number, categoryName: string, productCount: number) => {
+    const confirmMessage = productCount > 0
+      ? `Are you sure you want to delete "${categoryName}" and all ${productCount} product(s) in this category?\n\nThis action cannot be undone and will:\n- Delete the category\n- Delete all products in this category\n- Remove these products from all carts and wishlists\n- Delete all reviews for these products\n\nNote: If any products have been ordered, deletion will fail.`
+      : `Are you sure you want to delete "${categoryName}"?`;
+
+    if (!confirm(confirmMessage)) return;
 
     try {
       const response = await fetch(`/api/admin/categories/${categoryId}`, {
@@ -79,6 +83,7 @@ export default function CategoriesPage() {
       const data = await response.json();
 
       if (response.ok) {
+        alert(data.message || 'Category deleted successfully');
         fetchCategories();
       } else {
         alert(data.error || 'Failed to delete category');
@@ -184,7 +189,7 @@ export default function CategoriesPage() {
                           <Edit className="w-5 h-5" />
                         </button>
                         <button
-                          onClick={() => handleDelete(category.category_id)}
+                          onClick={() => handleDelete(category.category_id, category.category_name, category._count.products)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
                         >
                           <Trash2 className="w-5 h-5" />

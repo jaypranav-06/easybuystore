@@ -146,101 +146,113 @@ export default function WishlistPage() {
               return (
                 <div
                   key={item.id}
-                  className="bg-white rounded-lg shadow-sm hover:shadow-lg transition overflow-hidden"
+                  className="group h-full"
                 >
-                  {/* Product Image */}
-                  <Link href={`/products/${product.product_id}`} className="block relative">
-                    <div className="relative aspect-square bg-gray-100">
-                      {product.image_url ? (
-                        <Image
-                          src={product.image_url}
-                          alt={product.product_name}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <ShoppingBag className="w-16 h-16 text-gray-400" />
-                        </div>
-                      )}
-                      {discount > 0 && (
-                        <span className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                          -{discount}%
-                        </span>
-                      )}
-                    </div>
-                  </Link>
+                  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col h-full relative">
+                    {/* Remove Button - Top Right */}
+                    <button
+                      onClick={() => handleRemove(item.id)}
+                      className="absolute top-3 right-3 z-10 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-md text-gray-500 hover:text-red-500 hover:bg-white transition-all"
+                      title="Remove from wishlist"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
 
-                  {/* Product Info */}
-                  <div className="p-4">
-                    {product.category && (
-                      <p className="text-xs text-primary mb-1">
-                        {product.category.category_name}
-                      </p>
-                    )}
-                    <Link href={`/products/${product.product_id}`}>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-primary transition">
-                        {product.product_name}
-                      </h3>
-                    </Link>
-
-                    {/* Rating */}
-                    {product.reviewCount > 0 && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex text-yellow-400">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className="w-3 h-3"
-                              fill={i < Math.round(product.avgRating) ? 'currentColor' : 'none'}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-xs text-gray-600">
-                          ({product.reviewCount})
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Price */}
-                    <div className="mb-4">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-xl font-bold text-gray-900">
-                          Rs {price.toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                        {originalPrice && (
-                          <span className="text-sm text-gray-500 line-through">
-                            Rs {originalPrice.toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {/* Product Image */}
+                    <Link href={`/products/${product.product_id}`} className="block relative">
+                      <div className="relative aspect-square bg-gray-100">
+                        {product.image_url ? (
+                          <Image
+                            src={product.image_url}
+                            alt={product.product_name}
+                            fill
+                            className="object-cover group-hover:scale-105 transition duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ShoppingBag className="w-16 h-16 text-gray-400" />
+                          </div>
+                        )}
+                        {discount > 0 && (
+                          <span className="absolute top-3 left-3 bg-red-500 text-white px-2.5 py-1 rounded-full text-xs font-semibold">
+                            -{discount}%
                           </span>
                         )}
+                        {product.stock_quantity === 0 && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-[2px]">
+                            <span className="bg-white text-gray-900 px-4 py-2 rounded-lg font-semibold text-sm">Out of Stock</span>
+                          </div>
+                        )}
                       </div>
-                    </div>
+                    </Link>
 
-                    {/* Stock Status */}
-                    <div className="mb-3">
-                      {product.stock_quantity > 0 ? (
-                        <span className="text-sm text-success font-medium">In Stock</span>
-                      ) : (
-                        <span className="text-sm text-red-600 font-medium">Out of Stock</span>
+                    {/* Product Info */}
+                    <div className="p-4 flex flex-col flex-1">
+                      {product.category && (
+                        <p className="text-xs text-gray-500 mb-1.5 truncate uppercase tracking-wide">
+                          {product.category.category_name}
+                        </p>
                       )}
-                    </div>
+                      <Link href={`/products/${product.product_id}`}>
+                        <h3
+                          className="font-semibold text-gray-900 mb-2 min-h-[2.5rem] hover:text-accent transition leading-tight"
+                          title={product.product_name}
+                        >
+                          <span className="line-clamp-2">{product.product_name}</span>
+                        </h3>
+                      </Link>
 
-                    {/* Actions */}
-                    <div className="flex gap-2">
-                      <AddToCartButton
-                        product={{
-                          ...product,
-                          reviews: [],
-                        }}
-                        className="flex-1 text-sm py-2"
-                      />
-                      <button
-                        onClick={() => handleRemove(item.id)}
-                        className="p-2 text-gray-400 hover:text-red-500 transition border border-gray-300 rounded-lg hover:border-red-500"
-                        title="Remove from wishlist"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                      {/* Rating */}
+                      <div className="flex items-center gap-1.5 mb-3 min-h-[1.25rem]">
+                        {product.reviewCount > 0 && (
+                          <>
+                            <div className="flex text-yellow-400">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className="w-3.5 h-3.5"
+                                  fill={i < Math.round(product.avgRating) ? 'currentColor' : 'none'}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs text-gray-500">
+                              ({product.reviewCount})
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Price */}
+                      <div className="mb-4 mt-auto">
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <span className="text-xl font-bold text-gray-900">
+                            Rs {price.toLocaleString('en-LK', { minimumFractionDigits: 2 })}
+                          </span>
+                          {originalPrice && (
+                            <span className="text-sm text-gray-400 line-through">
+                              Rs {originalPrice.toLocaleString('en-LK', { minimumFractionDigits: 2 })}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Add to Cart Button */}
+                      {product.stock_quantity > 0 ? (
+                        <AddToCartButton
+                          product={{
+                            ...product,
+                            reviews: [],
+                          }}
+                          className="w-full text-sm py-2.5 font-medium"
+                        />
+                      ) : (
+                        <button
+                          disabled
+                          className="w-full text-sm py-2.5 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed font-medium"
+                        >
+                          Out of Stock
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

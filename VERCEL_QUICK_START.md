@@ -87,7 +87,6 @@ After deployment, add your Vercel URL to Google Cloud Console:
 ## 📁 Files Created
 
 - `.vercel/` - Vercel configuration (ignored by git)
-- `CLAUDE.md` - Vercel best practices (ignored by git)
 - `.env.local` - Local environment pulled from Vercel
 - `add-vercel-env.sh` - Script to add env vars via CLI (optional)
 

@@ -130,6 +130,26 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 )}
               </div>
 
+              {/* Available Sizes */}
+              {product.available_sizes && product.available_sizes.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="font-semibold text-gray-900 mb-3">Available Sizes</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {product.available_sizes.map((size) => (
+                      <span
+                        key={size}
+                        className="px-4 py-2 border-2 border-gray-300 rounded-lg font-semibold text-gray-700 bg-white"
+                      >
+                        {size}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Select your size when adding to cart
+                  </p>
+                </div>
+              )}
+
               {/* Description */}
               {product.description && (
                 <div className="mb-6">
@@ -138,18 +158,17 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 </div>
               )}
 
-              {/* Add to Cart & Wishlist */}
-              <div className="flex gap-3">
-                <AddToCartButton product={{
+              {/* Product Actions: Add to Cart & Wishlist */}
+              <AddToCartButton
+                product={{
                   ...product,
                   price: Number(product.price),
                   discount_price: product.discount_price ? Number(product.discount_price) : null,
-                }} className="flex-1" />
-                <AddToWishlistButton
-                  productId={product.product_id}
-                  className="p-3 border border-gray-300 rounded-lg hover:border-red-500"
-                />
-              </div>
+                }}
+                availableSizes={product.available_sizes}
+                showWishlist={true}
+                productId={product.product_id}
+              />
 
               {/* Features */}
               <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">

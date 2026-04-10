@@ -51,11 +51,13 @@ export async function PUT(
     const {
       product_name,
       description,
+      keywords,
       price,
       discount_price,
       stock_quantity,
       category_id,
       image_url,
+      available_sizes,
       is_active,
       is_featured,
     } = body;
@@ -67,6 +69,7 @@ export async function PUT(
     const updateData: any = {
       product_name,
       description,
+      keywords,
       is_active,
       is_featured,
     };
@@ -81,6 +84,7 @@ export async function PUT(
 
     if (category_id) updateData.category_id = parseInt(category_id);
     if (image_url !== undefined) updateData.image_url = image_url;
+    if (available_sizes !== undefined) updateData.available_sizes = available_sizes;
 
     console.log('Update product - Final updateData:', updateData);
 
@@ -111,16 +115,50 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    const productId = parseInt(id);
 
-    await prisma.product.delete({
-      where: { product_id: parseInt(id) },
+    // Check if product exists
+    const product = await prisma.product.findUnique({
+      where: { product_id: productId },
     });
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
+    if (!product) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
+    // Check if product is referenced in orders
+    const orderItems = await prisma.orderItem.findFirst({
+      where: { product_id: productId },
+    });
+
+    if (orderItems) {
+      return NextResponse.json(
+        { error: 'Cannot delete product that has been ordered. Consider deactivating it instead.' },
+        { status: 400 }
+      );
+    }
+
+    // Delete related records first
+    await prisma.$transaction([
+      // Delete from cart items (includes both cart and wishlist items)
+      prisma.cartItem.deleteMany({
+        where: { product_id: productId },
+      }),
+      // Delete reviews
+      prisma.review.deleteMany({
+        where: { product_id: productId },
+      }),
+      // Finally delete the product
+      prisma.product.delete({
+        where: { product_id: productId },
+      }),
+    ]);
+
+    return NextResponse.json({ success: true, message: 'Product deleted successfully' });
+  } catch (error: any) {
     console.error('Error deleting product:', error);
     return NextResponse.json(
-      { error: 'Failed to delete product' },
+      { error: error.message || 'Failed to delete product' },
       { status: 500 }
     );
   }

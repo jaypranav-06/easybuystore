@@ -9,6 +9,7 @@ export interface CartItem {
   quantity: number;
   image_url?: string;
   stock_quantity: number;
+  selected_size?: string;
 }
 
 interface CartStore {
@@ -28,22 +29,23 @@ export const useCartStore = create<CartStore>()(
 
       addItem: (item) =>
         set((state) => {
+          // Find existing item with same product_id AND size (if applicable)
           const existingItem = state.items.find(
-            (i) => i.product_id === item.product_id
+            (i) => i.product_id === item.product_id && i.selected_size === item.selected_size
           );
 
           if (existingItem) {
-            // Update quantity if item exists
+            // Update quantity if item with same size exists
             return {
               items: state.items.map((i) =>
-                i.product_id === item.product_id
+                i.product_id === item.product_id && i.selected_size === item.selected_size
                   ? { ...i, quantity: i.quantity + item.quantity }
                   : i
               ),
             };
           }
 
-          // Add new item
+          // Add new item (or same product with different size)
           return { items: [...state.items, item] };
         }),
 

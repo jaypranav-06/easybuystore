@@ -56,17 +56,29 @@ function SignInForm() {
         }
         setLoading(false);
       } else if (result?.ok) {
-        // Successful login - redirect to home or callback URL
-        // Only use callbackUrl if explicitly provided, otherwise always go to home
-        const callbackUrl = searchParams.get('callbackUrl');
+        // Successful login - get session to check user role
+        const response = await fetch('/api/auth/session');
+        const session = await response.json();
 
-        // If no callbackUrl or if it's the settings page, go to home instead
-        if (!callbackUrl || callbackUrl === '/account/settings') {
-          router.push('/');
+        // Check if user is admin or staff
+        const userRole = session?.user?.role;
+
+        if (userRole === 'admin' || userRole === 'staff' || userRole === 'super_admin') {
+          // Redirect admin/staff/super_admin to admin dashboard
+          router.push('/admin');
+          router.refresh();
         } else {
-          router.push(callbackUrl);
+          // Redirect regular users to home or callback URL
+          const callbackUrl = searchParams.get('callbackUrl');
+
+          // If no callbackUrl or if it's the settings page, go to home instead
+          if (!callbackUrl || callbackUrl === '/account/settings') {
+            router.push('/');
+          } else {
+            router.push(callbackUrl);
+          }
+          router.refresh();
         }
-        router.refresh();
       }
     } catch (err) {
       console.error('Sign in error:', err);
@@ -207,9 +219,11 @@ function SignInForm() {
             onClick={async () => {
               try {
                 setError('');
-                await signIn('google', { callbackUrl: searchParams.get('callbackUrl') || '/' });
+                setLoading(true);
+                await signIn('google', { callbackUrl: '/auth/redirect' });
               } catch (err) {
                 setError('Failed to sign in with Google. Please try again.');
+                setLoading(false);
               }
             }}
             disabled={loading}

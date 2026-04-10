@@ -61,6 +61,11 @@ export default function CartPage() {
                     >
                       {item.product_name}
                     </Link>
+                    {item.selected_size && (
+                      <p className="text-sm text-gray-600 mt-1">
+                        Size: <span className="font-semibold">{item.selected_size}</span>
+                      </p>
+                    )}
                     <p className="text-lg font-bold text-gray-900 mt-2">
                       Rs {(item.discount_price || item.price).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
