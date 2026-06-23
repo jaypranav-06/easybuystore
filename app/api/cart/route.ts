@@ -5,7 +5,7 @@
  * URL: /api/cart
  * Methods: GET, POST, DELETE
  *
- * Key Concepts for VIVA:
+ * Key Concepts for
  * - Cart persists across sessions (saved in database, not just browser)
  * - Requires user authentication (must be logged in)
  * - Synchronizes local cart (browser) with server cart (database)

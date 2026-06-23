@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db/prisma';
 
 // GET /api/products/[id] - Get single product by ID
+// Get single product details with reviews and ratings
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Extract and parse product ID from URL params
     const { id } = await params;
     const productId = parseInt(id);
 
@@ -17,6 +19,7 @@ export async function GET(
       );
     }
 
+    // Fetch product with category and approved reviews
     const product = await prisma.product.findUnique({
       where: {
         product_id: productId,

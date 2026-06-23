@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/auth';
 import prisma from '@/lib/db/prisma';
 
-// GET - Fetch user profile
+// Get current user profile information
 export async function GET(request: NextRequest) {
   try {
+    // Verify user authentication
     const session = await auth();
 
     if (!session?.user) {
@@ -13,6 +14,7 @@ export async function GET(request: NextRequest) {
 
     const userId = parseInt(session.user.id);
 
+    // Fetch user data from database
     const user = await prisma.user.findUnique({
       where: { user_id: userId },
       select: {
@@ -51,9 +53,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT - Update user profile
+// Update user profile information
 export async function PUT(request: NextRequest) {
   try {
+    // Verify user authentication
     const session = await auth();
 
     if (!session?.user) {
@@ -61,6 +64,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    // Parse request body
     const body = await request.json();
 
     const { firstName, lastName, phone, address, city, state, zipCode, country } = body;

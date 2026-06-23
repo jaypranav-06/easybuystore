@@ -4,7 +4,7 @@
  * This file implements the actual authentication methods for our e-commerce store.
  * It handles both Google OAuth login and traditional email/password login.
  *
- * Key Concepts for VIVA:
+ * Key Concepts for:
  * - OAuth: "Login with Google" - lets users sign in using their Google account
  * - Credentials: Traditional email/password login
  * - bcrypt: Securely hashes passwords (one-way encryption)

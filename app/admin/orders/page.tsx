@@ -1,36 +1,71 @@
-import prisma from '@/lib/db/prisma';
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Package, Eye } from 'lucide-react';
 import { formatStatus } from '@/lib/utils/format-status';
 
-async function getOrders() {
-  const orders = await prisma.paymentOrder.findMany({
-    orderBy: { created_at: 'desc' },
-    include: {
-      user: {
-        select: {
-          first_name: true,
-          last_name: true,
-          email: true,
-        },
-      },
-      order_items: {
-        include: {
-          product: {
-            select: {
-              product_name: true,
-            },
-          },
-        },
-      },
-    },
-  });
+type Period = 'all' | 'today' | 'last_week' | 'last_month';
+type PriceSort = 'none' | 'asc' | 'desc';
 
-  return orders;
+interface Order {
+  order_id: number;
+  order_number: string;
+  total: number;
+  payment_status: string | null;
+  order_status: string;
+  created_at: string;
+  user: { first_name: string; last_name: string; email: string };
+  order_items: { id: number }[];
 }
 
-export default async function AdminOrdersPage() {
-  const orders = await getOrders();
+const PERIODS: { value: Period; label: string }[] = [
+  { value: 'all', label: 'All Orders' },
+  { value: 'today', label: 'Today' },
+  { value: 'last_week', label: 'Last 7 Days' },
+  { value: 'last_month', label: 'Last 30 Days' },
+];
+
+function filterAndSort(orders: Order[], period: Period, priceSort: PriceSort): Order[] {
+  let result = orders;
+
+  if (period !== 'all') {
+    const now = new Date();
+    let cutoff: Date;
+    if (period === 'today') {
+      cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    } else if (period === 'last_week') {
+      cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    } else {
+      cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+    result = result.filter((o) => new Date(o.created_at) >= cutoff);
+  }
+
+  if (priceSort === 'asc') {
+    result = [...result].sort((a, b) => a.total - b.total);
+  } else if (priceSort === 'desc') {
+    result = [...result].sort((a, b) => b.total - a.total);
+  }
+
+  return result;
+}
+
+export default function AdminOrdersPage() {
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
+  const [period, setPeriod] = useState<Period>('all');
+  const [priceSort, setPriceSort] = useState<PriceSort>('none');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/admin/orders')
+      .then((r) => r.json())
+      .then((res) => { if (res.success) setAllOrders(res.orders); })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const orders = filterAndSort(allOrders, period, priceSort);
 
   const stats = {
     total: orders.length,
@@ -46,6 +81,52 @@ export default async function AdminOrdersPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Orders</h1>
         <p className="text-gray-600">Manage and track customer orders</p>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        {/* Period */}
+        <div className="flex gap-2">
+          {PERIODS.map((p) => (
+            <button
+              key={p.value}
+              onClick={() => setPeriod(p.value)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition border ${
+                period === p.value
+                  ? 'bg-primary text-white border-primary'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="w-px h-6 bg-gray-200" />
+
+        {/* Price sort */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setPriceSort(priceSort === 'asc' ? 'none' : 'asc')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition border ${
+              priceSort === 'asc'
+                ? 'bg-primary text-white border-primary'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Price: Low to High
+          </button>
+          <button
+            onClick={() => setPriceSort(priceSort === 'desc' ? 'none' : 'desc')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition border ${
+              priceSort === 'desc'
+                ? 'bg-primary text-white border-primary'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Price: High to Low
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -74,10 +155,16 @@ export default async function AdminOrdersPage() {
 
       {/* Orders Table */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        {orders.length === 0 ? (
+        {loading ? (
+          <div className="space-y-2 p-6">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-12 bg-gray-100 animate-pulse rounded" />
+            ))}
+          </div>
+        ) : orders.length === 0 ? (
           <div className="text-center py-12">
             <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">No orders yet</p>
+            <p className="text-gray-600">No orders found for this period</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -119,7 +206,7 @@ export default async function AdminOrdersPage() {
                       {order.order_items.length}
                     </td>
                     <td className="py-4 px-6 font-semibold text-gray-900 text-sm">
-                      Rs {Number(order.total).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      Rs {Number(order.total).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                     <td className="py-4 px-6">
                       <span

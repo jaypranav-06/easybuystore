@@ -4,10 +4,7 @@
  * This file sets up the connection between our Next.js app and Supabase PostgreSQL database.
  * We use Prisma ORM (Object-Relational Mapping) to interact with the database easily.
  *
- * Key Concepts for VIVA:
- * - Supabase: Cloud-hosted PostgreSQL database (like Firebase but for SQL databases)
- * - Prisma: Tool that lets us write database queries using JavaScript instead of raw SQL
- * - Connection Pooling: Reuses database connections instead of creating new ones (saves resources)
+
  */
 
 import { PrismaClient } from '@prisma/client'

@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/auth';
 import prisma from '@/lib/db/prisma';
 
-// GET /api/orders/[orderId] - Get single order by ID
+// Get single order details by ID for authenticated user
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
+    // Verify user authentication
     const session = await auth();
 
     if (!session?.user) {
@@ -18,6 +19,7 @@ export async function GET(
     }
 
     const userId = parseInt(session.user.id);
+    // Extract and parse order ID from URL params
     const { orderId: orderIdParam } = await params;
     const orderId = parseInt(orderIdParam);
 

@@ -9,7 +9,7 @@
  * - Welcome emails
  * - Contact form notifications
  *
- * For VIVA:
+ * For
  * - SendGrid is a cloud email delivery service (like Gmail API but for businesses)
  * - Transactional emails: Automated emails triggered by user actions
  * - Free tier: 100 emails/day (perfect for demos)

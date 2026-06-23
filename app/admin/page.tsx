@@ -2,7 +2,7 @@ import prisma from '@/lib/db/prisma';
 import { Package, ShoppingCart, Users, TrendingUp, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { formatStatus } from '@/lib/utils/format-status';
-import { LkrIcon } from '@/components/icons/LkrIcon';
+import RevenueCard from '@/components/admin/RevenueCard';
 
 async function getDashboardStats() {
   const [
@@ -12,7 +12,6 @@ async function getDashboardStats() {
     pendingOrders,
     lowStockProducts,
     recentOrders,
-    totalRevenue,
   ] = await Promise.all([
     prisma.product.count({ where: { is_active: true } }),
     prisma.paymentOrder.count(),
@@ -37,14 +36,6 @@ async function getDashboardStats() {
         },
       },
     }),
-    prisma.paymentOrder.aggregate({
-      _sum: {
-        total: true,
-      },
-      where: {
-        payment_status: 'paid',
-      },
-    }),
   ]);
 
   return {
@@ -54,7 +45,6 @@ async function getDashboardStats() {
     pendingOrders,
     lowStockProducts,
     recentOrders,
-    totalRevenue: totalRevenue._sum.total || 0,
   };
 }
 
@@ -62,14 +52,7 @@ export default async function AdminDashboard() {
   const stats = await getDashboardStats();
 
   const statCards = [
-    {
-      title: 'Total Revenue',
-      value: `Rs ${Number(stats.totalRevenue).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      icon: LkrIcon,
-      color: 'bg-green-500',
-      bgColor: 'bg-green-50',
-      textColor: 'text-success',
-    },
+    
     {
       title: 'Total Orders',
       value: stats.totalOrders.toString(),
@@ -104,8 +87,13 @@ export default async function AdminDashboard() {
         <p className="text-gray-600">Welcome to your admin dashboard</p>
       </div>
 
+      {/* Revenue Card with filters */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <RevenueCard />
+      </div>
+
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (

@@ -3,18 +3,20 @@ import { auth } from '@/lib/auth/auth';
 import prisma from '@/lib/db/prisma';
 import { trackShipment } from '@/lib/services/logistics';
 
-// GET - Get tracking information for an order
+// Get shipment tracking information for an order
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
+    // Verify user authentication
     const session = await auth();
 
     if (!session || !session.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Extract and parse order ID from URL params
     const { orderId } = await params;
     const orderIdNum = parseInt(orderId);
 

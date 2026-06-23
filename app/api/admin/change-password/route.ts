@@ -3,8 +3,9 @@ import { auth } from '@/lib/auth/auth';
 import prisma from '@/lib/db/prisma';
 import bcrypt from 'bcryptjs';
 
-// POST /api/admin/change-password - Change admin password
+// Change admin user password
 export async function POST(request: NextRequest) {
+  // Verify admin authentication
   const session = await auth();
 
   if (!session || session.user.role !== 'admin') {
@@ -12,6 +13,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Parse request body
     const body = await request.json();
     const { currentPassword, newPassword } = body;
 

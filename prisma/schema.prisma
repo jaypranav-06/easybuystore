@@ -25,10 +25,10 @@ model CartItem {
   user_id       Int
   product_id    Int
   quantity      Int
-  selected_size String?
   item_type     String   @default("cart")
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
+  selected_size String?
   product       Product  @relation(fields: [product_id], references: [product_id])
   user          User     @relation(fields: [user_id], references: [user_id])
 
@@ -72,8 +72,8 @@ model OrderItem {
   quantity      Int
   price         Float
   subtotal      Float
-  selected_size String?
   created_at    DateTime     @default(now())
+  selected_size String?
   payment_order PaymentOrder @relation(fields: [order_id], references: [order_id])
   product       Product      @relation(fields: [product_id], references: [product_id])
 
@@ -116,25 +116,25 @@ model PaymentOrder {
 }
 
 model Product {
-  product_id      Int        @id @default(autoincrement())
+  product_id      Int         @id @default(autoincrement())
   product_name    String
   description     String?
   price           Float
   discount_price  Float?
   category_id     Int?
   image_url       String?
-  stock_quantity  Int        @default(0)
-  available_sizes String[]   @default([])
-  is_active       Boolean    @default(true)
-  is_featured     Boolean    @default(false)
-  is_new          Boolean    @default(false)
-  is_bestseller   Boolean    @default(false)
+  stock_quantity  Int         @default(0)
+  is_active       Boolean     @default(true)
+  is_featured     Boolean     @default(false)
+  is_new          Boolean     @default(false)
+  is_bestseller   Boolean     @default(false)
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
   keywords        String?
-  created_at      DateTime   @default(now())
-  updated_at      DateTime   @updatedAt
+  available_sizes String[]    @default([])
   cart_items      CartItem[]
   order_items     OrderItem[]
-  category        Category?  @relation(fields: [category_id], references: [category_id])
+  category        Category?   @relation(fields: [category_id], references: [category_id])
   reviews         Review[]
 
   @@map("products")
@@ -164,16 +164,16 @@ model Review {
   rating               Int
   title                String?
   comment              String?
-  images               String[]     @default([])
   is_approved          Boolean      @default(false)
-  is_verified_purchase Boolean      @default(false)
-  helpful_count        Int          @default(0)
-  unhelpful_count      Int          @default(0)
   created_at           DateTime     @default(now())
   updated_at           DateTime     @updatedAt
+  helpful_count        Int          @default(0)
+  images               String[]     @default([])
+  is_verified_purchase Boolean      @default(false)
+  unhelpful_count      Int          @default(0)
+  review_votes         ReviewVote[]
   product              Product      @relation(fields: [product_id], references: [product_id])
   user                 User         @relation(fields: [user_id], references: [user_id])
-  review_votes         ReviewVote[]
 
   @@map("reviews")
 }
@@ -207,8 +207,8 @@ model User {
   updated_at     DateTime       @updatedAt
   cart_items     CartItem[]
   payment_orders PaymentOrder[]
-  reviews        Review[]
   review_votes   ReviewVote[]
+  reviews        Review[]
 
   @@map("users")
 }

@@ -5,7 +5,7 @@ import path from 'path';
 
 const SETTINGS_FILE = path.join(process.cwd(), 'data', 'store-settings.json');
 
-// Default settings
+// Default store configuration settings
 const DEFAULT_SETTINGS = {
   store_name: 'EasyBuyStore',
   store_email: 'contact@easybuystore.com',
@@ -17,7 +17,7 @@ const DEFAULT_SETTINGS = {
   currency: 'USD',
 };
 
-// Ensure data directory exists
+// Create data directory if it doesn't exist
 function ensureDataDir() {
   const dataDir = path.join(process.cwd(), 'data');
   if (!fs.existsSync(dataDir)) {
@@ -25,8 +25,9 @@ function ensureDataDir() {
   }
 }
 
-// GET /api/admin/store-settings - Get store settings
+// Get store settings for admin dashboard
 export async function GET(request: NextRequest) {
+  // Verify admin authentication
   const session = await auth();
 
   if (!session || session.user.role !== 'admin') {
@@ -55,8 +56,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT /api/admin/store-settings - Update store settings
+// Update store settings
 export async function PUT(request: NextRequest) {
+  // Verify admin authentication
   const session = await auth();
 
   if (!session || session.user.role !== 'admin') {
@@ -64,6 +66,7 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
+    // Parse request body
     const body = await request.json();
 
     // Validate required fields

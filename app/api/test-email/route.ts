@@ -6,10 +6,6 @@
  *
  * Usage: http://localhost:3000/api/test-email?email=your-email@gmail.com
  *
- * For VIVA Demo:
- * - Shows how we send transactional emails
- * - Demonstrates error handling
- * - Can test all email templates
  */
 
 import { NextRequest, NextResponse } from 'next/server';

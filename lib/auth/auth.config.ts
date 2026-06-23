@@ -4,7 +4,7 @@
  * This file configures how authentication works in our e-commerce application.
  * We use NextAuth.js v5 which handles user login, sessions, and route protection.
  *
- * Key Concepts for VIVA:
+ * Key Concepts for:
  * - Authentication: Verifying who the user is (login/signup)
  * - Authorization: Checking if user has permission to access a page
  * - Session: Keeps user logged in across page navigation

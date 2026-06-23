@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/auth';
 import prisma from '@/lib/db/prisma';
 
-// GET /api/admin/profile - Get admin profile
+// Get current admin user profile information
 export async function GET(request: NextRequest) {
+  // Verify admin authentication
   const session = await auth();
 
   if (!session || session.user.role !== 'admin') {
@@ -11,6 +12,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Fetch admin data from database
     const adminData = await prisma.adminUser.findUnique({
       where: { admin_id: parseInt(session.user.id) },
       select: {
@@ -45,8 +47,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT /api/admin/profile - Update admin profile
+// Update admin profile information
 export async function PUT(request: NextRequest) {
+  // Verify admin authentication
   const session = await auth();
 
   if (!session || session.user.role !== 'admin') {
@@ -54,6 +57,7 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
+    // Parse request body
     const body = await request.json();
     const { username, email } = body;
 
