@@ -3,8 +3,10 @@ import { auth } from '@/lib/auth/auth';
 import prisma from '@/lib/db/prisma';
 import bcrypt from 'bcryptjs';
 
+// Change user password
 export async function POST(request: NextRequest) {
   try {
+    // Verify user authentication
     const session = await auth();
 
     if (!session?.user) {
@@ -12,6 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    // Parse request body
     const body = await request.json();
 
     const { currentPassword, newPassword } = body;

@@ -8,8 +8,10 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.NEXTAUTH_SECRET || 'your-secret-key-change-in-production'
 );
 
+// Handle admin login with email and password
 export async function POST(request: NextRequest) {
   try {
+    // Parse request body
     const { email, password } = await request.json();
 
     if (!email || !password) {

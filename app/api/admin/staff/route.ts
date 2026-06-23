@@ -7,7 +7,7 @@ import path from 'path';
 
 const PERMISSIONS_FILE = path.join(process.cwd(), 'data', 'staff-permissions.json');
 
-// Ensure data directory exists
+// Create data directory if it doesn't exist
 function ensureDataDir() {
   const dataDir = path.join(process.cwd(), 'data');
   if (!fs.existsSync(dataDir)) {
@@ -15,7 +15,7 @@ function ensureDataDir() {
   }
 }
 
-// Save permissions to file
+// Save staff member permissions to JSON file
 function savePermissions(adminId: number, permissions: string[]) {
   ensureDataDir();
   let allPermissions: Record<string, string[]> = {};
@@ -29,8 +29,9 @@ function savePermissions(adminId: number, permissions: string[]) {
   fs.writeFileSync(PERMISSIONS_FILE, JSON.stringify(allPermissions, null, 2));
 }
 
-// GET /api/admin/staff - Get all staff members
+// Get list of all staff members
 export async function GET(request: NextRequest) {
+  // Verify admin authentication
   const session = await auth();
 
   if (!session || session.user.role !== 'admin') {
@@ -38,6 +39,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Fetch all staff members from database
     const staff = await prisma.adminUser.findMany({
       orderBy: { created_at: 'desc' },
       select: {
@@ -59,8 +61,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/admin/staff - Add new staff member
+// Create new staff member account
 export async function POST(request: NextRequest) {
+  // Verify admin authentication
   const session = await auth();
 
   if (!session || session.user.role !== 'admin') {
@@ -68,6 +71,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Parse request body
     const body = await request.json();
     const { username, email, password, role, permissions } = body;
 

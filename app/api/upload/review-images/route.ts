@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { put } from '@vercel/blob';
 import { auth } from '@/lib/auth/auth';
 
 export async function POST(request: NextRequest) {
@@ -36,10 +35,6 @@ export async function POST(request: NextRequest) {
 
     const urls: string[] = [];
 
-    // Ensure uploads directory exists
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'reviews');
-    await mkdir(uploadsDir, { recursive: true });
-
     for (const file of files) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
@@ -58,19 +53,19 @@ export async function POST(request: NextRequest) {
       }
 
       // Create unique filename
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
       const timestamp = Date.now();
       const randomStr = Math.random().toString(36).substring(2, 8);
       const ext = file.name.split('.').pop();
-      const filename = `${timestamp}-${randomStr}.${ext}`;
+      const filename = `reviews/${timestamp}-${randomStr}.${ext}`;
 
-      // Save file
-      const filepath = path.join(uploadsDir, filename);
-      await writeFile(filepath, buffer);
+      // Upload to Vercel Blob
+      const blob = await put(filename, file, {
+        access: 'public',
+        addRandomSuffix: false,
+      });
 
       // Add URL to array
-      urls.push(`/uploads/reviews/${filename}`);
+      urls.push(blob.url);
     }
 
     return NextResponse.json({ success: true, urls });

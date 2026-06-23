@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
+// Handle admin logout by clearing authentication cookie
 export async function POST() {
   try {
     const cookieStore = await cookies();

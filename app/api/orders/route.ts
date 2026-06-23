@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth/auth';
 import prisma from '@/lib/db/prisma';
 import { z } from 'zod';
 
+// Validation schema for creating new orders
 const createOrderSchema = z.object({
   items: z.array(
     z.object({
@@ -26,9 +27,10 @@ const createOrderSchema = z.object({
   shipping_phone: z.string(),
 });
 
-// GET /api/orders - Get all orders for logged-in user
+// Get all orders for authenticated user with pagination
 export async function GET(request: NextRequest) {
   try {
+    // Verify user authentication
     const session = await auth();
 
     if (!session?.user) {
@@ -39,6 +41,7 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    // Parse pagination parameters from query string
     const searchParams = request.nextUrl.searchParams;
     const limit = searchParams.get('limit');
     const page = searchParams.get('page');
@@ -81,9 +84,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/orders - Create a new order
+// Create a new order with items
 export async function POST(request: NextRequest) {
   try {
+    // Verify user authentication
     const session = await auth();
 
     if (!session?.user) {
@@ -94,6 +98,7 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
+    // Parse and validate request body
     const body = await request.json();
     const validatedData = createOrderSchema.parse(body);
 

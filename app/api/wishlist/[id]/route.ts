@@ -2,18 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/auth';
 import prisma from '@/lib/db/prisma';
 
-// DELETE - Remove item from wishlist
+// Remove an item from user's wishlist
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Verify user authentication
     const session = await auth();
 
     if (!session || !session.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Extract and parse item ID from URL params
     const { id } = await params;
     const itemId = parseInt(id);
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/db/prisma';
+import { sendWelcomeEmail } from '@/lib/email/sendgrid';
 
 const registerSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -52,6 +53,16 @@ export async function POST(request: NextRequest) {
         updated_at: new Date(),
       },
     });
+
+    // Send welcome email
+    try {
+      const fullName = `${validatedData.firstName} ${validatedData.lastName}`;
+      await sendWelcomeEmail(validatedData.email, fullName);
+      console.log('SUCCESS: Welcome email sent to:', validatedData.email);
+    } catch (emailError) {
+      console.error('ERROR: Failed to send welcome email:', emailError);
+      // Don't fail registration if email fails
+    }
 
     // Return user without password
     const { password_hash, ...userWithoutPassword } = user;

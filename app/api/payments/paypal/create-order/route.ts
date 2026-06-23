@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/auth';
 import { z } from 'zod';
 
+// Validation schema for PayPal order creation
 const createPayPalOrderSchema = z.object({
   amount: z.number().positive(),
   currency: z.string().default('USD'),
@@ -13,7 +14,7 @@ const createPayPalOrderSchema = z.object({
   })).optional(),
 });
 
-// Get PayPal access token
+// Get PayPal OAuth access token for API authentication
 async function getPayPalAccessToken() {
   const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
   const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET;
@@ -21,8 +22,10 @@ async function getPayPalAccessToken() {
     ? 'https://api-m.paypal.com'
     : 'https://api-m.sandbox.paypal.com';
 
+  // Encode credentials in Base64 for Basic auth
   const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString('base64');
 
+  // Request access token from PayPal OAuth endpoint
   const response = await fetch(`${PAYPAL_API_URL}/v1/oauth2/token`, {
     method: 'POST',
     headers: {
@@ -40,8 +43,10 @@ async function getPayPalAccessToken() {
   return data.access_token;
 }
 
+// Create a PayPal order for checkout
 export async function POST(request: NextRequest) {
   try {
+    // Verify user is authenticated
     const session = await auth();
 
     if (!session?.user) {
@@ -51,6 +56,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Parse and validate request body
     const body = await request.json();
     const validatedData = createPayPalOrderSchema.parse(body);
 
@@ -112,7 +118,7 @@ export async function POST(request: NextRequest) {
 
     const paypalOrder = await createOrderResponse.json();
 
-    // Find the approve URL
+    // Find the approve URL for customer to complete payment
     const approveLink = paypalOrder.links.find((link: any) => link.rel === 'approve');
 
     return NextResponse.json({

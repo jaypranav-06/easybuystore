@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db/prisma';
 import { auth } from '@/lib/auth/auth';
 
+// Vote on a product review as helpful or unhelpful
 export async function POST(request: NextRequest) {
   try {
-    // Get the session using NextAuth
+    // Verify user authentication
     const session = await auth();
 
     if (!session || !session.user) {
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Parse request body
     const body = await request.json();
     const { reviewId, voteType } = body;
 

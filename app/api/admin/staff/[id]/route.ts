@@ -6,17 +6,19 @@ import path from 'path';
 
 const PERMISSIONS_FILE = path.join(process.cwd(), 'data', 'staff-permissions.json');
 
-// DELETE /api/admin/staff/[id] - Remove staff member
+// Delete a staff member by ID
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Verify admin authentication
   const session = await auth();
 
   if (!session || session.user.role !== 'admin') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Extract and parse staff ID from URL params
   const { id } = await params;
   const staffId = parseInt(id);
 

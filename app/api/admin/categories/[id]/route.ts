@@ -47,28 +47,78 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    const categoryId = parseInt(id);
 
-    // Check if category has products
-    const productsCount = await prisma.product.count({
-      where: { category_id: parseInt(id) },
+    // Check if category exists
+    const category = await prisma.category.findUnique({
+      where: { category_id: categoryId },
+      include: {
+        _count: {
+          select: { products: true },
+        },
+      },
     });
 
-    if (productsCount > 0) {
+    if (!category) {
+      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    }
+
+    const productsCount = category._count.products;
+
+    // Check if any products in this category have been ordered
+    const orderedProducts = await prisma.orderItem.findFirst({
+      where: {
+        product: {
+          category_id: categoryId,
+        },
+      },
+    });
+
+    if (orderedProducts) {
       return NextResponse.json(
-        { error: `Cannot delete category with ${productsCount} products. Remove products first.` },
+        {
+          error: `Cannot delete category "${category.category_name}" because some products have been ordered. Please deactivate the products instead.`
+        },
         { status: 400 }
       );
     }
 
-    await prisma.category.delete({
-      where: { category_id: parseInt(id) },
+    // Get all product IDs in this category
+    const products = await prisma.product.findMany({
+      where: { category_id: categoryId },
+      select: { product_id: true },
     });
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
+    const productIds = products.map(p => p.product_id);
+
+    // Delete category and all related data in a transaction
+    await prisma.$transaction([
+      // Delete all cart and wishlist items for products in this category
+      prisma.cartItem.deleteMany({
+        where: { product_id: { in: productIds } },
+      }),
+      // Delete all reviews for products in this category
+      prisma.review.deleteMany({
+        where: { product_id: { in: productIds } },
+      }),
+      // Delete all products in this category
+      prisma.product.deleteMany({
+        where: { category_id: categoryId },
+      }),
+      // Finally delete the category
+      prisma.category.delete({
+        where: { category_id: categoryId },
+      }),
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      message: `Category "${category.category_name}" and ${productsCount} product(s) deleted successfully`
+    });
+  } catch (error: any) {
     console.error('Error deleting category:', error);
     return NextResponse.json(
-      { error: 'Failed to delete category' },
+      { error: error.message || 'Failed to delete category' },
       { status: 500 }
     );
   }

@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       data: {
         paypal_order_id: validatedData.paypal_order_id,
         paypal_transaction_id: paypalTransactionId || `TXN-${Date.now()}`,
-        payment_status: captureStatus === 'COMPLETED' ? 'completed' : 'pending',
+        payment_status: captureStatus === 'COMPLETED' ? 'paid' : 'pending',
         order_status: captureStatus === 'COMPLETED' ? 'processing' : 'pending',
       },
     });

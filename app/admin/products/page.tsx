@@ -45,17 +45,21 @@ export default function AdminProductsPage() {
   };
 
   const handleDelete = async (productId: number) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return;
 
     try {
       const response = await fetch(`/api/admin/products/${productId}`, {
         method: 'DELETE',
       });
 
+      const data = await response.json();
+
       if (response.ok) {
+        alert(data.message || 'Product deleted successfully');
         setProducts(products.filter((p) => p.product_id !== productId));
       } else {
-        alert('Failed to delete product');
+        // Show the specific error message from the API
+        alert(data.error || 'Failed to delete product');
       }
     } catch (error) {
       console.error('Error deleting product:', error);
